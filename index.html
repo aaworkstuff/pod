@@ -127,6 +127,10 @@
       answers: {
         reading: { selections: {}, proof:{sent:'', date:'', method:'', notes:''} },
         math:    { selections: {}, proof:{sent:'', date:'', method:'', notes:''} },
+      },
+      ui: {
+        rw: { enroll:false, military:false, cpp:false, tests:false },
+        m:  { enroll:false, military:false, cpp:false, tests:false }
       }
     };
 
@@ -231,7 +235,7 @@
               <li>Reading and Writing are grouped together where rules are identical.</li>
               <li>Math is handled separately.</li>
             </ul>
-            <details>
+            <details open>
               <summary>What counts as an exemption?</summary>
               <div class="hint">Degree earned, transfer with college-level coursework (English for Reading/Writing, Math for Math), prior readiness determination, certain military statuses, completion of a partnered college prep course, non-degree seeking, or meeting specific test-score thresholds on ACT, SAT, GED, HiSET, or STAAR.</div>
             </details>
@@ -290,6 +294,7 @@
       const testList = isRW ? TESTS.rw : TESTS.m;
       const sel = state.answers[areaKey].selections;
       const proof = state.answers[areaKey].proof;
+      const ui = state.ui[which];
 
       viewContainer.innerHTML = `
         <div class="row">
@@ -297,7 +302,7 @@
             <p>Answer the questions below to see if you are <strong>TSI-exempt in ${areaLabel}</strong>. If none apply, you will need to take the TSIA2 ${isRW ? '' : 'Math '}assessment.</p>
           </div>
 
-          <details>
+          <details id="d-enroll-${which}" ${ui.enroll ? 'open' : ''}>
             <summary>College enrollment or completion</summary>
             <div class="row">
               <div class="checklist">
@@ -308,8 +313,7 @@
                 ${makeCheck('transfer', 'I transferred with completed college-level coursework', sel.transfer)}
                 <div class="hint">${isRW ? EXPLAINS.transfer_rw : EXPLAINS.transfer_m}</div>
                 <div class="row cols-2">
-                  ${makeCheck('transfer_course_ok', isRW ? 'I completed a college-level ENGLISH course' : 'I completed a college-level MATH course', sel.transfer_course_ok)}
-                  ${makeCheck('transfer_grade_ok', 'I completed it with a passing grade', sel.transfer_grade_ok)}
+                  ${makeCheck('transfer_course', isRW ? 'I completed a college-level ENGLISH course with a passing grade' : 'I completed a college-level MATH course with a passing grade', sel.transfer_course)}
                 </div>
               </div>
               <div class="checklist">
@@ -323,7 +327,7 @@
             </div>
           </details>
 
-          <details>
+          <details id="d-military-${which}" ${ui.military ? 'open' : ''}>
             <summary>Military status</summary>
             <div class="row">
               <div class="checklist">
@@ -337,7 +341,7 @@
             </div>
           </details>
 
-          <details>
+          <details id="d-cpp-${which}" ${ui.cpp ? 'open' : ''}>
             <summary>College preparatory course</summary>
             <div class="checklist">
               ${makeCheck('cpp', 'I completed a partnered high school College Preparatory Course in this subject within 24 months of HS graduation', sel.cpp)}
@@ -345,7 +349,7 @@
             </div>
           </details>
 
-          <details>
+          <details id="d-tests-${which}" ${ui.tests ? 'open' : ''}>
             <summary>Test score options (${areaLabel})</summary>
             <div class="checklist">
               ${testList.map(t => makeCheck(t.key, t.label, sel[t.key])).join('')}
@@ -367,15 +371,27 @@
         cb.addEventListener('change', e => {
           const key = e.target.dataset.key;
           state.answers[areaKey].selections[key] = e.target.checked;
-          render(); // re-render to show/hide proof section as needed
+          // preserve panel open states across renders
+          persistDetailsOpen(which);
+          render();
         });
+      });
+
+      // persist details open/close when user toggles the disclosure widgets
+      ['enroll','military','cpp','tests'].forEach(k=>{
+        const det = viewContainer.querySelector(`#d-${k}-${which}`);
+        if (det){
+          det.addEventListener('toggle', ()=>{
+            state.ui[which][k] = det.open;
+          });
+        }
       });
 
       // wire proof radio/selects/inputs
       const sentY = viewContainer.querySelector(`#${areaKey}_proof_sent_y`);
       const sentN = viewContainer.querySelector(`#${areaKey}_proof_sent_n`);
-      if (sentY) sentY.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='Y'; render(); });
-      if (sentN) sentN.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='N'; render(); });
+      if (sentY) sentY.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='Y'; });
+      if (sentN) sentN.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='N'; });
       const dateEl = viewContainer.querySelector(`#${areaKey}_proof_date`);
       if (dateEl) dateEl.addEventListener('change', e=>{ state.answers[areaKey].proof.date = e.target.value; });
       const methodEl = viewContainer.querySelector(`#${areaKey}_proof_method`);
@@ -451,16 +467,16 @@
 
     function exemptionDecision(areaKey){
       const s = state.answers[areaKey].selections || {};
-      // Require transfer_course_ok for transfer to count
-      const transferValid = s.transfer && s.transfer_course_ok && s.transfer_grade_ok;
-      const other = Object.entries(s).some(([k,v]) => v && !['transfer','transfer_course_ok','transfer_grade_ok'].includes(k));
+      // Require combined transfer_course for transfer to count
+      const transferValid = s.transfer && s.transfer_course;
+      const other = Object.entries(s).some(([k,v]) => v && !['transfer','transfer_course'].includes(k));
       return transferValid || other;
     }
 
     function listSelections(areaKey){
       const map = state.answers[areaKey].selections || {};
       const labels = {
-        degree:'Degree earned', transfer:'Transfer with college credit', transfer_course_ok:'Required course completed', transfer_grade_ok:'Passing grade', priorReady:'Prior college readiness determination', activeDuty:'Active duty', veteran:'Veteran', cpp:'College prep course', nonDegree:'Non-degree seeking',
+        degree:'Degree earned', transfer:'Transfer with college credit', transfer_course:'Required course completed with passing grade', priorReady:'Prior college readiness determination', activeDuty:'Active duty', veteran:'Veteran', cpp:'College prep course', nonDegree:'Non-degree seeking',
         act_rw_old:'ACT Eng 19 + Comp 23', act_rw_new:'ACT E+R ≥ 40', sat_rw:'SAT EBRW ≥ 480', ged_rw:'GED RLA ≥ 165', hiset_rw:'HiSET R15 W15 Essay≥4', staar_eng3:'STAAR Eng III ≥ 4000',
         act_m_old:'ACT Math 19 + Comp 23', act_m_new:'ACT Math ≥ 22', sat_m:'SAT Math ≥ 530', ged_m:'GED Math ≥ 165', hiset_m:'HiSET Math ≥ 15', staar_alg2:'STAAR Alg II ≥ 4000'
       };
@@ -494,6 +510,14 @@
       };
     }
 
+    function persistDetailsOpen(which){
+      const dets = ['enroll','military','cpp','tests'];
+      dets.forEach(k=>{
+        const el = viewContainer.querySelector(`#d-${k}-${which}`);
+        if (el) state.ui[which][k] = el.open;
+      });
+    }
+
     function loadSample(which){
       if (which==='needsAll'){
         state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
@@ -506,6 +530,7 @@
         reading:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
         math:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
       };
+      state.ui = { rw:{enroll:false, military:false, cpp:false, tests:false}, m:{enroll:false, military:false, cpp:false, tests:false} };
       state.stepIndex = 1;
       render();
     }
@@ -537,6 +562,7 @@
         reading:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
         math:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
       };
+      state.ui = { rw:{enroll:false, military:false, cpp:false, tests:false}, m:{enroll:false, military:false, cpp:false, tests:false} };
       render();
     });
 
