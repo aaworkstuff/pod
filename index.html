@@ -361,17 +361,16 @@
             <div class="hint">You can select more than one if multiple apply.</div>
           </div>
 
-          ${exemptionDecision(areaKey) ? proofBlock(areaKey, proof) : ''}
+          ${exemptionDecision(areaKey) ? proofBlock(areaKey, proof, which) : ''}
 
           <div class="pill note">If no exemptions apply in ${areaLabel}, you will need to take the TSIA2 ${isRW ? 'Reading and Writing' : 'Math'} assessment before registration.</div>
         </div>`;
 
-      // wire up all checkboxes
+      // wire up all checkboxes (with state persistence and live re-render)
       viewContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', e => {
           const key = e.target.dataset.key;
           state.answers[areaKey].selections[key] = e.target.checked;
-          // preserve panel open states across renders
           persistDetailsOpen(which);
           render();
         });
@@ -381,17 +380,15 @@
       ['enroll','military','cpp','tests'].forEach(k=>{
         const det = viewContainer.querySelector(`#d-${k}-${which}`);
         if (det){
-          det.addEventListener('toggle', ()=>{
-            state.ui[which][k] = det.open;
-          });
+          det.addEventListener('toggle', ()=>{ state.ui[which][k] = det.open; });
         }
       });
 
-      // wire proof radio/selects/inputs
+      // wire proof radio/selects/inputs with live re-render
       const sentY = viewContainer.querySelector(`#${areaKey}_proof_sent_y`);
       const sentN = viewContainer.querySelector(`#${areaKey}_proof_sent_n`);
-      if (sentY) sentY.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='Y'; });
-      if (sentN) sentN.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='N'; });
+      if (sentY) sentY.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='Y'; persistDetailsOpen(which); render(); });
+      if (sentN) sentN.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='N'; persistDetailsOpen(which); render(); });
       const dateEl = viewContainer.querySelector(`#${areaKey}_proof_date`);
       if (dateEl) dateEl.addEventListener('change', e=>{ state.answers[areaKey].proof.date = e.target.value; });
       const methodEl = viewContainer.querySelector(`#${areaKey}_proof_method`);
@@ -400,7 +397,7 @@
       if (notesEl) notesEl.addEventListener('input', e=>{ state.answers[areaKey].proof.notes = e.target.value; });
     }
 
-    function proofBlock(areaKey, proof){
+    function proofBlock(areaKey, proof, which){
       const methods = ['Official transcript sent electronically','Official transcript sent by mail','Uploaded document to portal','Emailed document to admissions','Other'];
       return `
         <div class="section">
