@@ -6,50 +6,82 @@
   <title>TSI Placement Task – Questionnaire Mock (LSC Exemptions)</title>
   <style>
     :root {
-      --ps-navy:#2c3e50; --ps-blue:#1b6aa5; --ps-sky:#e8f2fa; --ps-gray:#f5f6f7; --ps-border:#d5dbe0;
-      --ps-green:#2e7d32; --ps-red:#c0392b; --ps-text:#212529; --warning:#8a6d1a; --warning-bg:#fff8e1;
+      --ps-navy:#2c3e50; --ps-blue:#1b6aa5; --ps-sky:#e8f2fa; --ps-gray:#f7f8f9; --ps-border:#d5dbe0;
+      --ps-green:#2e7d32; --ps-red:#c0392b; --ps-text:#1f2937; --warning:#8a6d1a; --warning-bg:#fff8e1;
+      --space-1:6px; --space-2:10px; --space-3:14px; --space-4:18px; --space-5:24px; --radius:12px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Segoe UI, Roboto, Helvetica, Arial, sans-serif;color:var(--ps-text);background:#fff}
-    .topbar{display:flex;align-items:center;gap:16px;padding:12px 20px;background:linear-gradient(90deg,var(--ps-navy),#223445);color:#fff}
+    html,body{height:100%}
+    body{margin:0;font-family:Segoe UI, Roboto, Helvetica, Arial, sans-serif;color:var(--ps-text);background:#fff;line-height:1.4}
+
+    /* Top header */
+    .topbar{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-4);background:linear-gradient(90deg,var(--ps-navy),#223445);color:#fff}
     .topbar .app-title{font-size:18px;font-weight:600}
     .env-pill{margin-left:auto;font-size:12px;background:#3a5166;padding:4px 10px;border-radius:999px}
-    .layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px)}
-    .sidebar{background:var(--ps-gray);border-right:1px solid var(--ps-border);padding:18px}
-    .step{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:10px;margin-bottom:8px;border:1px solid transparent;cursor:pointer}
+
+    /* Layout */
+    .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px)}
+    .sidebar{background:var(--ps-gray);border-right:1px solid var(--ps-border);padding:var(--space-4)}
+
+    .step{display:flex;align-items:flex-start;gap:var(--space-2);padding:12px;border-radius:10px;margin-bottom:10px;border:1px solid transparent;cursor:pointer}
+    .step:hover{background:#eef2f6}
     .step.active{background:var(--ps-sky);border-color:var(--ps-border)}
-    .step .index{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--ps-border);font-size:12px;font-weight:600}
+    .step .index{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--ps-border);font-size:12px;font-weight:700}
     .step.active .index{background:var(--ps-blue);color:#fff;border-color:var(--ps-blue)}
     .step .label{font-size:14px}
-    .content{padding:24px 28px}
-    .card{border:1px solid var(--ps-border);border-radius:12px;background:#fff;box-shadow:0 1px 0 rgba(16,24,40,.02)}
-    .card .card-hd{padding:16px 18px;border-bottom:1px solid var(--ps-border);background:linear-gradient(0deg,#fff,var(--ps-gray))}
-    .card .card-bd{padding:18px}
-    .row{display:grid;gap:16px}
+
+    .content{padding:var(--space-5)}
+
+    /* Card */
+    .card{border:1px solid var(--ps-border);border-radius:var(--radius);background:#fff;box-shadow:0 1px 0 rgba(16,24,40,.03)}
+    .card .card-hd{padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--ps-border);background:linear-gradient(0deg,#fff,var(--ps-gray))}
+    .card .card-bd{padding:var(--space-5);}
+
+    .row{display:grid;gap:var(--space-4)}
+    .row.tight{gap:var(--space-2)}
     .row.cols-2{grid-template-columns:1fr 1fr}
-    label{font-size:14px;font-weight:600;margin-bottom:6px;display:block}
-    .hint{font-size:12px;color:#5c6b78}
-    input[type="text"], select{width:100%;padding:10px 12px;border:1px solid var(--ps-border);border-radius:8px;background:#fff}
+    .row.cols-3{grid-template-columns:repeat(3,1fr)}
+
+    /* Inputs */
+    label{font-size:14px;font-weight:700;margin-bottom:6px;display:block}
+    .hint{font-size:12px;color:#5c6b78;margin-top:6px}
+    input[type="text"], input[type="date"], select{width:100%;padding:12px;border:1px solid var(--ps-border);border-radius:10px;background:#fff}
     .radio-group, .checklist{display:grid;gap:10px}
-    .radio, .check{display:flex;align-items:flex-start;gap:8px}
-    .actions{display:flex;gap:10px;justify-content:flex-end;padding:18px}
-    .btn{appearance:none;border:1px solid var(--ps-border);background:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .radio, .check{display:flex;align-items:flex-start;gap:10px}
+
+    /* Buttons */
+    .actions{display:flex;gap:12px;justify-content:flex-end;padding:var(--space-4) var(--space-5)}
+    .btn{appearance:none;border:1px solid var(--ps-border);background:#fff;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:700}
     .btn:disabled{opacity:.5;cursor:not-allowed}
     .btn.primary{background:var(--ps-blue);border-color:var(--ps-blue);color:#fff}
     .btn.ghost{background:#fff;border-color:var(--ps-border)}
-    .btn.success{background:var(--ps-green);border-color:var(--ps-green);color:#fff}
-    .btn.danger{background:var(--ps-red);border-color:var(--ps-red);color:#fff}
-    .progress{height:8px;background:#eef2f5;border-radius:999px;overflow:hidden;margin-top:10px}
+
+    /* Progress */
+    .progress{height:10px;background:#eef2f5;border-radius:999px;overflow:hidden;margin-top:8px}
     .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--ps-blue),#3aa0ff)}
-    .summary-list{display:grid;gap:10px}
+
+    /* Summary */
+    .summary-list{display:grid;gap:var(--space-3)}
+    .summary-card{border:1px solid var(--ps-border);border-radius:12px;padding:14px 16px}
     .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:#eef7ee;border:1px solid #cfe9d0;color:#1e6f23;border-radius:999px;padding:6px 10px}
     .pill.bad{background:#fff3f2;border-color:#f1d0cd;color:#a63a2e}
     .pill.note{background:var(--warning-bg);border-color:#f1e3a1;color:var(--warning)}
     .muted{color:#6b7b88}
-    details{border:1px dashed var(--ps-border);border-radius:8px;padding:10px 12px}
-    details > summary{cursor:pointer;font-weight:600}
+
+    details{border:1px dashed var(--ps-border);border-radius:10px;padding:12px 14px;background:#fff}
+    details > summary{cursor:pointer;font-weight:700;margin-bottom:8px}
+
+    .section{border:1px solid var(--ps-border);border-radius:12px;padding:16px}
+
+    /* Footer note */
     .footnote{font-size:12px;color:#5c6b78;margin-top:14px}
-    @media(max-width:960px){.layout{grid-template-columns:1fr}.sidebar{position:sticky;top:0;z-index:2}}
+
+    /* Mobile */
+    @media(max-width:960px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{position:sticky;top:0;z-index:2}
+      .row.cols-2,.row.cols-3{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -93,16 +125,16 @@
       // CS milestone flags (simulate): Y satisfied, N not satisfied
       milestones: { TSIR: 'N', TSIW: 'N', TISM: 'N' },
       answers: {
-        reading: { selections: {}, decided: false },
-        writing: { selections: {}, decided: false },
-        math:    { selections: {}, decided: false },
+        reading: { selections: {}, proof:{sent:'', date:'', method:'', notes:''} },
+        math:    { selections: {}, proof:{sent:'', date:'', method:'', notes:''} },
       }
     };
 
     // Static text based on LSC page
     const EXPLAINS = {
       degree: 'You are exempt if you have graduated with an associate or baccalaureate degree from a U.S. Department of Education accredited postsecondary institution.',
-      transfer: 'You are exempt if you transferred to LSC from a private, independent, or accredited out-of-state institution and have satisfactorily completed college-level coursework.',
+      transfer_rw: 'You are exempt in Reading and Writing if you transferred to LSC from an eligible institution and have satisfactorily completed a college-level ENGLISH course.',
+      transfer_m: 'You are exempt in Math if you transferred to LSC from an eligible institution and have satisfactorily completed a college-level MATH course.',
       priorReady: 'You are exempt if a prior college has already determined that you met college readiness standards.',
       activeDuty: 'You are exempt if you are serving on active duty in the U.S. armed forces, Texas National Guard, or a reserve component for at least three years preceding enrollment.',
       veteran: 'You are exempt if you were honorably discharged, retired, or released from active duty on or after August 1, 1990.',
@@ -110,23 +142,23 @@
       nonDegree: 'Non-degree seeking students are TSI exempt.'
     };
 
-    // Test-score options by area (thresholds copied from LSC page)
+    // Test-score options by area (thresholds summarized from LSC page)
     const TESTS = {
-      readingWriting: [
-        { key:'act_rw_old', label:'ACT English 19 and Composite 23 (administered before Feb 15, 2023)', type:'check' },
-        { key:'act_rw_new', label:'ACT English and Reading (E+R) 40 or higher (administered on/after Feb 15, 2023)', type:'check' },
-        { key:'sat_rw',     label:'SAT Evidenced-Based Reading and Writing 480 or higher', type:'check' },
-        { key:'ged_rw',     label:'GED Reasoning Through Language Arts 165 or higher', type:'check' },
-        { key:'hiset_rw',   label:'HiSET Reading 15 and Writing 15 with Essay score 4 or higher', type:'check' },
-        { key:'staar_eng3', label:'STAAR English III Level 2 score of 4000', type:'check' },
+      rw: [
+        { key:'act_rw_old', label:'ACT English 19 and Composite 23 (before Feb 15, 2023)' },
+        { key:'act_rw_new', label:'ACT English + Reading (E+R) 40 or higher (on/after Feb 15, 2023)' },
+        { key:'sat_rw',     label:'SAT Evidenced-Based Reading and Writing 480 or higher' },
+        { key:'ged_rw',     label:'GED Reasoning Through Language Arts 165 or higher' },
+        { key:'hiset_rw',   label:'HiSET Reading 15 and Writing 15 with Essay 4 or higher' },
+        { key:'staar_eng3', label:'STAAR English III Level 2 score of 4000' },
       ],
-      math: [
-        { key:'act_m_old', label:'ACT Math 19 and Composite 23 (administered before Feb 15, 2023)', type:'check' },
-        { key:'act_m_new', label:'ACT Math 22 or higher (administered on/after Feb 15, 2023)', type:'check' },
-        { key:'sat_m',     label:'SAT Math 530 or higher', type:'check' },
-        { key:'ged_m',     label:'GED Mathematical Reasoning 165 or higher', type:'check' },
-        { key:'hiset_m',   label:'HiSET Mathematical Reasoning 15 or higher', type:'check' },
-        { key:'staar_alg2',label:'STAAR Algebra II Level 2 score of 4000', type:'check' },
+      m: [
+        { key:'act_m_old', label:'ACT Math 19 and Composite 23 (before Feb 15, 2023)' },
+        { key:'act_m_new', label:'ACT Math 22 or higher (on/after Feb 15, 2023)' },
+        { key:'sat_m',     label:'SAT Math 530 or higher' },
+        { key:'ged_m',     label:'GED Mathematical Reasoning 165 or higher' },
+        { key:'hiset_m',   label:'HiSET Mathematical Reasoning 15 or higher' },
+        { key:'staar_alg2',label:'STAAR Algebra II Level 2 score of 4000' },
       ]
     };
 
@@ -192,15 +224,16 @@
     // ---------------------------
     function renderIntro(){
       viewContainer.innerHTML = `
-        <div class="row" style="gap:18px">
-          <div>
+        <div class="row" style="gap:var(--space-4)">
+          <div class="section">
             <p>This demo walks a student through <strong>TSI exemptions</strong> exactly as published by Lone Star College. It branches per content area and ends with a clear next step.</p>
             <ul>
               <li>Reading and Writing are grouped together where rules are identical.</li>
               <li>Math is handled separately.</li>
             </ul>
-            <details><summary>What counts as an exemption?</summary>
-              <div class="hint">Degree earned, transfer with college-level coursework, prior readiness determination, certain military statuses, completion of a partnered college prep course, non-degree seeking, or meeting specific test-score thresholds on ACT, SAT, GED, HiSET, or STAAR.</div>
+            <details>
+              <summary>What counts as an exemption?</summary>
+              <div class="hint">Degree earned, transfer with college-level coursework (English for Reading/Writing, Math for Math), prior readiness determination, certain military statuses, completion of a partnered college prep course, non-degree seeking, or meeting specific test-score thresholds on ACT, SAT, GED, HiSET, or STAAR.</div>
             </details>
             <p class="muted">No real data is stored. This is for presentation only.</p>
           </div>
@@ -211,7 +244,7 @@
       const { TSIR, TSIW, TISM } = state.milestones;
       viewContainer.innerHTML = `
         <div class="row cols-2">
-          <div>
+          <div class="section">
             <label for="tsir">TSIR – Reading satisfied?</label>
             <select id="tsir">
               <option value="N" ${TSIR==='N'?'selected':''}>N – Not satisfied</option>
@@ -219,7 +252,7 @@
             </select>
             <div class="hint">If set to N, Reading and Writing exemptions will be asked.</div>
           </div>
-          <div>
+          <div class="section">
             <label for="tsiw">TSIW – Writing satisfied?</label>
             <select id="tsiw">
               <option value="N" ${TSIW==='N'?'selected':''}>N – Not satisfied</option>
@@ -227,7 +260,7 @@
             </select>
             <div class="hint">If set to N, Reading and Writing exemptions will be asked.</div>
           </div>
-          <div>
+          <div class="section">
             <label for="tism">TISM – Math satisfied?</label>
             <select id="tism">
               <option value="N" ${TISM==='N'?'selected':''}>N – Not satisfied</option>
@@ -235,9 +268,9 @@
             </select>
             <div class="hint">If set to N, Math exemptions will be asked.</div>
           </div>
-          <div>
+          <div class="section">
             <label>Load sample student</label>
-            <div class="row" style="grid-template-columns: 1fr 1fr 1fr; gap:8px">
+            <div class="row cols-3">
               <button class="btn" onclick="loadSample('needsAll')">Needs all</button>
               <button class="btn" onclick="loadSample('mathOnly')">Math only</button>
               <button class="btn" onclick="loadSample('none')">All satisfied</button>
@@ -254,36 +287,53 @@
       const isRW = which==='rw';
       const areaLabel = isRW ? 'Reading and Writing' : 'Math';
       const areaKey = isRW ? 'reading' : 'math';
-      const testList = isRW ? TESTS.readingWriting : TESTS.math;
+      const testList = isRW ? TESTS.rw : TESTS.m;
       const sel = state.answers[areaKey].selections;
+      const proof = state.answers[areaKey].proof;
 
       viewContainer.innerHTML = `
-        <div class="row" style="gap:18px">
-          <div>
+        <div class="row">
+          <div class="section">
             <p>Answer the questions below to see if you are <strong>TSI-exempt in ${areaLabel}</strong>. If none apply, you will need to take the TSIA2 ${isRW ? '' : 'Math '}assessment.</p>
           </div>
 
-          <details open>
+          <details>
             <summary>College enrollment or completion</summary>
-            <div class="checklist">
-              ${makeCheck('degree', 'I have an associate or bachelor\'s degree', sel.degree)}
-              <div class="hint">${EXPLAINS.degree}</div>
-              ${makeCheck('transfer', 'I transferred in with completed college-level coursework', sel.transfer)}
-              <div class="hint">${EXPLAINS.transfer}</div>
-              ${makeCheck('priorReady', 'A prior college already determined I was college ready', sel.priorReady)}
-              <div class="hint">${EXPLAINS.priorReady}</div>
-              ${makeCheck('nonDegree', 'I am a non-degree seeking student', sel.nonDegree)}
-              <div class="hint">${EXPLAINS.nonDegree}</div>
+            <div class="row">
+              <div class="checklist">
+                ${makeCheck('degree', 'I have an associate or bachelor\'s degree', sel.degree)}
+                <div class="hint">${EXPLAINS.degree}</div>
+              </div>
+              <div class="checklist">
+                ${makeCheck('transfer', 'I transferred with completed college-level coursework', sel.transfer)}
+                <div class="hint">${isRW ? EXPLAINS.transfer_rw : EXPLAINS.transfer_m}</div>
+                <div class="row cols-2">
+                  ${makeCheck('transfer_course_ok', isRW ? 'I completed a college-level ENGLISH course' : 'I completed a college-level MATH course', sel.transfer_course_ok)}
+                  ${makeCheck('transfer_grade_ok', 'I completed it with a passing grade', sel.transfer_grade_ok)}
+                </div>
+              </div>
+              <div class="checklist">
+                ${makeCheck('priorReady', 'A prior college already determined I was college ready', sel.priorReady)}
+                <div class="hint">${EXPLAINS.priorReady}</div>
+              </div>
+              <div class="checklist">
+                ${makeCheck('nonDegree', 'I am a non-degree seeking student', sel.nonDegree)}
+                <div class="hint">${EXPLAINS.nonDegree}</div>
+              </div>
             </div>
           </details>
 
           <details>
             <summary>Military status</summary>
-            <div class="checklist">
-              ${makeCheck('activeDuty', 'I have served on active duty for at least 3 years preceding enrollment', sel.activeDuty)}
-              <div class="hint">${EXPLAINS.activeDuty}</div>
-              ${makeCheck('veteran', 'I was honorably discharged, retired, or released on or after Aug 1, 1990', sel.veteran)}
-              <div class="hint">${EXPLAINS.veteran}</div>
+            <div class="row">
+              <div class="checklist">
+                ${makeCheck('activeDuty', 'I have served on active duty for at least 3 years preceding enrollment', sel.activeDuty)}
+                <div class="hint">${EXPLAINS.activeDuty}</div>
+              </div>
+              <div class="checklist">
+                ${makeCheck('veteran', 'I was honorably discharged, retired, or released on or after Aug 1, 1990', sel.veteran)}
+                <div class="hint">${EXPLAINS.veteran}</div>
+              </div>
             </div>
           </details>
 
@@ -302,10 +352,12 @@
             </div>
           </details>
 
-          <div>
-            ${exemptionDecision(areaKey) ? '<div class="pill">Exemption applies in '+areaLabel+'</div>' : '<div class="pill bad">No exemptions selected</div>'}
+          <div class="section">
+            ${exemptionDecision(areaKey) ? '<div class="pill">An exemption appears to apply in '+areaLabel+'</div>' : '<div class="pill bad">No exemptions selected</div>'}
             <div class="hint">You can select more than one if multiple apply.</div>
           </div>
+
+          ${exemptionDecision(areaKey) ? proofBlock(areaKey, proof) : ''}
 
           <div class="pill note">If no exemptions apply in ${areaLabel}, you will need to take the TSIA2 ${isRW ? 'Reading and Writing' : 'Math'} assessment before registration.</div>
         </div>`;
@@ -315,8 +367,58 @@
         cb.addEventListener('change', e => {
           const key = e.target.dataset.key;
           state.answers[areaKey].selections[key] = e.target.checked;
+          render(); // re-render to show/hide proof section as needed
         });
       });
+
+      // wire proof radio/selects/inputs
+      const sentY = viewContainer.querySelector(`#${areaKey}_proof_sent_y`);
+      const sentN = viewContainer.querySelector(`#${areaKey}_proof_sent_n`);
+      if (sentY) sentY.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='Y'; render(); });
+      if (sentN) sentN.addEventListener('change', ()=>{ state.answers[areaKey].proof.sent='N'; render(); });
+      const dateEl = viewContainer.querySelector(`#${areaKey}_proof_date`);
+      if (dateEl) dateEl.addEventListener('change', e=>{ state.answers[areaKey].proof.date = e.target.value; });
+      const methodEl = viewContainer.querySelector(`#${areaKey}_proof_method`);
+      if (methodEl) methodEl.addEventListener('change', e=>{ state.answers[areaKey].proof.method = e.target.value; });
+      const notesEl = viewContainer.querySelector(`#${areaKey}_proof_notes`);
+      if (notesEl) notesEl.addEventListener('input', e=>{ state.answers[areaKey].proof.notes = e.target.value; });
+    }
+
+    function proofBlock(areaKey, proof){
+      const methods = ['Official transcript sent electronically','Official transcript sent by mail','Uploaded document to portal','Emailed document to admissions','Other'];
+      return `
+        <div class="section">
+          <label>Have you already sent proof of your exemption for this area?</label>
+          <div class="radio-group">
+            <label class="radio"><input type="radio" name="${areaKey}_proof_sent" id="${areaKey}_proof_sent_y" ${proof.sent==='Y'?'checked':''}> <span>Yes</span></label>
+            <label class="radio"><input type="radio" name="${areaKey}_proof_sent" id="${areaKey}_proof_sent_n" ${proof.sent==='N'?'checked':''}> <span>No</span></label>
+          </div>
+
+          ${proof.sent==='Y' ? `
+          <div class="row cols-2" style="margin-top:12px">
+            <div>
+              <label for="${areaKey}_proof_date">When did you send it?</label>
+              <input type="date" id="${areaKey}_proof_date" value="${escapeHtml(proof.date)}" />
+              <div class="hint">An approximate date is fine.</div>
+            </div>
+            <div>
+              <label for="${areaKey}_proof_method">How did you send it?</label>
+              <select id="${areaKey}_proof_method">
+                <option value="">Select…</option>
+                ${methods.map(m=>`<option ${proof.method===m?'selected':''}>${m}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <label for="${areaKey}_proof_notes">Notes (optional)</label>
+            <input type="text" id="${areaKey}_proof_notes" placeholder="Example: Sent ACT scores via MyACT" value="${escapeHtml(proof.notes)}"/>
+          </div>
+          ` : ''}
+
+          ${proof.sent==='N' ? `
+          <div class="pill note" style="margin-top:12px">To finalize your exemption, submit official proof. Typical options include official transcripts or score reports sent directly from the testing agency or school. Check LSC instructions for accepted delivery methods.</div>
+          ` : ''}
+        </div>`;
     }
 
     function renderSummary(){
@@ -325,15 +427,15 @@
       const rwExempt = needRW ? exemptionDecision('reading') : true;
       const mExempt = needM ? exemptionDecision('math') : true;
 
-      const rows = [];
-      if (needRW){ rows.push(summaryRow('Reading and Writing', rwExempt)); }
-      if (needM){ rows.push(summaryRow('Math', mExempt)); }
+      const cards = [];
+      if (needRW){ cards.push(summaryCard('Reading and Writing', 'reading', rwExempt)); }
+      if (needM){ cards.push(summaryCard('Math', 'math', mExempt)); }
 
-      const allGood = rows.length===0 || rows.every(r => r.ok);
+      const allGood = cards.length===0 || cards.every(c => c.ok);
 
       viewContainer.innerHTML = `
         <div class="summary-list">
-          ${rows.map(r => r.html).join('') || '<div class="muted">All areas are already satisfied.</div>'}
+          ${cards.map(c => c.html).join('') || '<div class="muted">All areas are already satisfied.</div>'}
         </div>
         <div style="margin-top:16px">
           ${allGood ? '<div class="pill" style="background:#eef7ff;border-color:#cfe1ff;color:#1b6aa5">Ready to register</div>' : '<div class="pill bad">Action needed before registration</div>'}
@@ -348,18 +450,46 @@
     }
 
     function exemptionDecision(areaKey){
-      const sel = state.answers[areaKey].selections || {};
-      // If any exemption is selected for the area, they are exempt in that area
-      return Object.values(sel).some(Boolean);
+      const s = state.answers[areaKey].selections || {};
+      // Require transfer_course_ok for transfer to count
+      const transferValid = s.transfer && s.transfer_course_ok && s.transfer_grade_ok;
+      const other = Object.entries(s).some(([k,v]) => v && !['transfer','transfer_course_ok','transfer_grade_ok'].includes(k));
+      return transferValid || other;
     }
 
-    function summaryRow(label, ok){
+    function listSelections(areaKey){
+      const map = state.answers[areaKey].selections || {};
+      const labels = {
+        degree:'Degree earned', transfer:'Transfer with college credit', transfer_course_ok:'Required course completed', transfer_grade_ok:'Passing grade', priorReady:'Prior college readiness determination', activeDuty:'Active duty', veteran:'Veteran', cpp:'College prep course', nonDegree:'Non-degree seeking',
+        act_rw_old:'ACT Eng 19 + Comp 23', act_rw_new:'ACT E+R ≥ 40', sat_rw:'SAT EBRW ≥ 480', ged_rw:'GED RLA ≥ 165', hiset_rw:'HiSET R15 W15 Essay≥4', staar_eng3:'STAAR Eng III ≥ 4000',
+        act_m_old:'ACT Math 19 + Comp 23', act_m_new:'ACT Math ≥ 22', sat_m:'SAT Math ≥ 530', ged_m:'GED Math ≥ 165', hiset_m:'HiSET Math ≥ 15', staar_alg2:'STAAR Alg II ≥ 4000'
+      };
+      return Object.keys(map).filter(k=>map[k]).map(k=>labels[k]||k);
+    }
+
+    function summaryCard(label, areaKey, ok){
+      const selections = listSelections(areaKey);
+      const proof = state.answers[areaKey].proof;
+      const needText = ok ? '' : `
+        <div class="pill bad" style="margin-top:8px">No exemption selected · TSIA2 required</div>`;
+
+      const proofHtml = ok ? `
+        <div class="row tight" style="margin-top:8px">
+          <div class="muted"><strong>Proof submitted:</strong> ${proof.sent==='Y' ? 'Yes' : proof.sent==='N' ? 'No' : 'Not answered'}</div>
+          ${proof.sent==='Y' ? `<div class="muted">Date: ${proof.date || '—'}</div><div class="muted">Method: ${proof.method || '—'}</div>` : ''}
+          ${proof.sent==='Y' && proof.notes ? `<div class="muted">Notes: ${escapeHtml(proof.notes)}</div>` : ''}
+          ${proof.sent==='N' ? `<div class="pill note">Submit official proof to finalize this exemption.</div>` : ''}
+        </div>` : '';
+
       return {
         ok,
-        html: `<div style="border:1px solid var(--ps-border);border-radius:10px;padding:12px 14px">
+        html: `<div class="summary-card">
           <div style="display:flex;align-items:center;justify-content:space-between"><strong>${label}</strong>
-            ${ok ? '<span class="pill">Exemption applies</span>' : '<span class="pill bad">No exemption selected · TSIA2 required</span>'}
+            ${ok ? '<span class="pill">Exemption applies</span>' : ''}
           </div>
+          <div class="muted" style="margin-top:8px"><strong>Selected exemptions:</strong> ${selections.length ? selections.join(', ') : 'None'}</div>
+          ${needText}
+          ${proofHtml}
         </div>`
       };
     }
@@ -372,7 +502,10 @@
       } else if (which==='none'){
         state.milestones = { TSIR:'Y', TSIW:'Y', TISM:'Y' };
       }
-      state.answers = { reading:{selections:{}}, writing:{selections:{}}, math:{selections:{}} };
+      state.answers = {
+        reading:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
+        math:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
+      };
       state.stepIndex = 1;
       render();
     }
@@ -380,6 +513,10 @@
     function clampStep(){
       const total = computeDynamicSteps().length;
       if (state.stepIndex > total-1){ state.stepIndex = total-1; }
+    }
+
+    function escapeHtml(str){
+      return (str||'').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     }
 
     // Nav
@@ -396,7 +533,10 @@
       if (!confirm('Reset all selections?')) return;
       state.stepIndex = 0;
       state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
-      state.answers = { reading:{selections:{}}, writing:{selections:{}}, math:{selections:{}} };
+      state.answers = {
+        reading:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
+        math:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
+      };
       render();
     });
 
