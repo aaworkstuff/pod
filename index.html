@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TSI Placement Task – Questionnaire Mock</title>
+  <style>
+    :root {
+      --ps-navy:#2c3e50;
+      --ps-blue:#1b6aa5;
+      --ps-sky:#e8f2fa;
+      --ps-gray:#f5f6f7;
+      --ps-border:#d5dbe0;
+      --ps-green:#2e7d32;
+      --ps-red:#c0392b;
+      --ps-text:#212529;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Segoe UI, Roboto, Helvetica, Arial, sans-serif;color:var(--ps-text);background:#fff}
+
+    /* Top header */
+    .topbar{display:flex;align-items:center;gap:16px;padding:12px 20px;background:linear-gradient(90deg,var(--ps-navy),#223445);color:#fff}
+    .topbar .app-title{font-size:18px;font-weight:600}
+    .env-pill{margin-left:auto;font-size:12px;background:#3a5166;padding:4px 10px;border-radius:999px}
+
+    /* Layout */
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px)}
+    .sidebar{background:var(--ps-gray);border-right:1px solid var(--ps-border);padding:18px;}
+
+    .step{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:10px;margin-bottom:8px;border:1px solid transparent}
+    .step.active{background:var(--ps-sky);border-color:var(--ps-border)}
+    .step .index{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--ps-border);font-size:12px;font-weight:600}
+    .step.active .index{background:var(--ps-blue);color:#fff;border-color:var(--ps-blue)}
+    .step .label{font-size:14px}
+
+    .content{padding:24px 28px}
+
+    /* Card */
+    .card{border:1px solid var(--ps-border);border-radius:12px;background:#fff;box-shadow:0 1px 0 rgba(16,24,40,.02)}
+    .card .card-hd{padding:16px 18px;border-bottom:1px solid var(--ps-border);background:linear-gradient(0deg,#fff,var(--ps-gray))}
+    .card .card-bd{padding:18px}
+
+    .row{display:grid;gap:16px}
+    .row.cols-2{grid-template-columns:1fr 1fr}
+
+    /* Inputs */
+    label{font-size:14px;font-weight:600;margin-bottom:6px;display:block}
+    .hint{font-size:12px;color:#5c6b78}
+    input[type="text"], select{width:100%;padding:10px 12px;border:1px solid var(--ps-border);border-radius:8px;background:#fff}
+    .radio-group{display:grid;gap:10px}
+    .radio{display:flex;align-items:flex-start;gap:8px}
+
+    /* Buttons */
+    .actions{display:flex;gap:10px;justify-content:flex-end;padding:18px}
+    .btn{appearance:none;border:1px solid var(--ps-border);background:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.primary{background:var(--ps-blue);border-color:var(--ps-blue);color:#fff}
+    .btn.ghost{background:#fff;border-color:var(--ps-border)}
+    .btn.success{background:var(--ps-green);border-color:var(--ps-green);color:#fff}
+    .btn.danger{background:var(--ps-red);border-color:var(--ps-red);color:#fff}
+
+    /* Progress */
+    .progress{height:8px;background:#eef2f5;border-radius:999px;overflow:hidden;margin-top:10px}
+    .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--ps-blue),#3aa0ff)}
+
+    /* Summary */
+    .summary-list{display:grid;gap:10px}
+    .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:#eef7ee;border:1px solid #cfe9d0;color:#1e6f23;border-radius:999px;padding:6px 10px}
+    .pill.bad{background:#fff3f2;border-color:#f1d0cd;color:#a63a2e}
+    .muted{color:#6b7b88}
+
+    /* Footer note */
+    .footnote{font-size:12px;color:#5c6b78;margin-top:14px}
+
+    /* Mobile */
+    @media(max-width:960px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{position:sticky;top:0;z-index:2}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="#7fb3d5"/>
+      </svg>
+      <div class="app-title">Campus Solutions – Questionnaire Framework Mock</div>
+    </div>
+    <div class="env-pill" id="env-pill">Demo · No backend</div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" id="sidebar">
+      <!-- Steps get rendered here -->
+    </aside>
+    <section class="content">
+      <div class="card">
+        <div class="card-hd">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-weight:700" id="view-title">Loading…</div>
+              <div class="progress"><div id="progress-bar"></div></div>
+            </div>
+            <button class="btn ghost" id="resetBtn" title="Reset all answers">Reset</button>
+          </div>
+        </div>
+        <div class="card-bd" id="view-container">
+          <!-- Views render here -->
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="backBtn">Back</button>
+          <button class="btn primary" id="nextBtn">Next</button>
+        </div>
+      </div>
+      <div class="footnote">This is a static mock for demos. It mimics PeopleSoft Questionnaire Framework behavior for a TSI Placement Task but does not connect to any backend.</div>
+    </section>
+  </main>
+
+  <script>
+    // ---------------------------
+    // Minimal state management
+    // ---------------------------
+    const state = {
+      stepIndex: 0,
+      // Simulated milestone values from CS: 'Y' satisfied, 'N' not satisfied
+      milestones: { TSIR: 'N', TSIW: 'N', TISM: 'N' },
+      // Answers per section
+      answers: {
+        reading: { exemption: '', details: '', plan: '' },
+        writing: { exemption: '', details: '', plan: '' },
+        math:    { exemption: '', details: '', plan: '' },
+      }
+    };
+
+    const steps = [
+      { key: 'intro',   label: 'Introduction' },
+      { key: 'profile', label: 'Student flags' },
+    ];
+
+    // steps after profile are dynamic depending on milestones
+    function computeDynamicSteps() {
+      const dyn = [];
+      if (state.milestones.TSIR === 'N') dyn.push({ key: 'reading', label: 'TSI Reading' });
+      if (state.milestones.TSIW === 'N') dyn.push({ key: 'writing', label: 'TSI Writing' });
+      if (state.milestones.TISM === 'N') dyn.push({ key: 'math',    label: 'TSI Math' });
+      dyn.push({ key: 'summary', label: 'Summary' });
+      return [steps[0], steps[1], ...dyn];
+    }
+
+    function getAllSteps(){
+      return computeDynamicSteps();
+    }
+
+    // ---------------------------
+    // Rendering helpers
+    // ---------------------------
+    const viewTitle = document.getElementById('view-title');
+    const viewContainer = document.getElementById('view-container');
+    const sidebar = document.getElementById('sidebar');
+    const progressBar = document.getElementById('progress-bar');
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function renderSidebar(){
+      const all = getAllSteps();
+      sidebar.innerHTML = '';
+      all.forEach((s, idx)=>{
+        const el = document.createElement('div');
+        el.className = 'step' + (idx === state.stepIndex ? ' active' : '');
+        el.innerHTML = `
+          <div class="index">${idx+1}</div>
+          <div class="label">${s.label}</div>
+        `;
+        el.addEventListener('click',()=>{
+          state.stepIndex = idx;
+          render();
+        });
+        sidebar.appendChild(el);
+      });
+    }
+
+    function setProgress(){
+      const total = getAllSteps().length;
+      const pct = ((state.stepIndex+1)/total)*100;
+      progressBar.style.width = pct + '%';
+    }
+
+    function render(){
+      const stepsNow = getAllSteps();
+      const current = stepsNow[state.stepIndex];
+      renderSidebar();
+      setProgress();
+      viewTitle.textContent = current.label;
+
+      switch(current.key){
+        case 'intro': renderIntro(); break;
+        case 'profile': renderProfile(); break;
+        case 'reading': renderSection('reading'); break;
+        case 'writing': renderSection('writing'); break;
+        case 'math': renderSection('math'); break;
+        case 'summary': renderSummary(); break;
+      }
+      // buttons
+      backBtn.disabled = state.stepIndex === 0;
+      nextBtn.textContent = current.key === 'summary' ? 'Finish' : 'Next';
+    }
+
+    // ---------------------------
+    // Individual Views
+    // ---------------------------
+    function renderIntro(){
+      viewContainer.innerHTML = `
+        <div class="row" style="gap:18px">
+          <div>
+            <p>Based on your records, you may need to take one or more parts of the Texas Success Initiative (TSI) Assessment before you can register.</p>
+            <ul>
+              <li>This demo shows how a questionnaire can branch only into the areas you still need.</li>
+              <li>We will check three flags: <strong>TSIR</strong> reading, <strong>TSIW</strong> writing, and <strong>TISM</strong> math.</li>
+            </ul>
+            <p class="muted">Nothing here is saved. It is only a click-through mock.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProfile(){
+      const { TSIR, TSIW, TISM } = state.milestones;
+      viewContainer.innerHTML = `
+        <div class="row cols-2">
+          <div>
+            <label for="tsir">TSIR – Reading satisfied?</label>
+            <select id="tsir">
+              <option value="N" ${TSIR==='N'?'selected':''}>N – Not satisfied</option>
+              <option value="Y" ${TSIR==='Y'?'selected':''}>Y – Satisfied</option>
+            </select>
+            <div class="hint">If set to N, the Reading section will appear.</div>
+          </div>
+          <div>
+            <label for="tsiw">TSIW – Writing satisfied?</label>
+            <select id="tsiw">
+              <option value="N" ${TSIW==='N'?'selected':''}>N – Not satisfied</option>
+              <option value="Y" ${TSIW==='Y'?'selected':''}>Y – Satisfied</option>
+            </select>
+            <div class="hint">If set to N, the Writing section will appear.</div>
+          </div>
+          <div>
+            <label for="tism">TISM – Math satisfied?</label>
+            <select id="tism">
+              <option value="N" ${TISM==='N'?'selected':''}>N – Not satisfied</option>
+              <option value="Y" ${TISM==='Y'?'selected':''}>Y – Satisfied</option>
+            </select>
+            <div class="hint">If set to N, the Math section will appear.</div>
+          </div>
+          <div>
+            <label>Load sample student</label>
+            <div class="row" style="grid-template-columns: 1fr 1fr 1fr; gap:8px">
+              <button class="btn" onclick="loadSample('allN')">Needs all</button>
+              <button class="btn" onclick="loadSample('mathOnly')">Math only</button>
+              <button class="btn" onclick="loadSample('none')">All satisfied</button>
+            </div>
+            <div class="hint">Quick presets to show branching.</div>
+          </div>
+        </div>
+      `;
+
+      const tsir = document.getElementById('tsir');
+      const tsiw = document.getElementById('tsiw');
+      const tism = document.getElementById('tism');
+      tsir.addEventListener('change', e=>{ state.milestones.TSIR = e.target.value; enforceStepBounds(); render(); });
+      tsiw.addEventListener('change', e=>{ state.milestones.TSIW = e.target.value; enforceStepBounds(); render(); });
+      tism.addEventListener('change', e=>{ state.milestones.TISM = e.target.value; enforceStepBounds(); render(); });
+    }
+
+    function renderSection(sectionKey){
+      const nice = { reading:'Reading', writing:'Writing', math:'Math' }[sectionKey];
+      const ans = state.answers[sectionKey];
+      viewContainer.innerHTML = `
+        <div class="row" style="gap:18px">
+          <div class="radio-group">
+            <label>Do you already qualify for a ${nice} exemption?</label>
+            <div class="radio">
+              <input type="radio" name="exempt" id="exemptYes" value="Y" ${ans.exemption==='Y'?'checked':''}>
+              <label for="exemptYes">Yes, I am exempt based on SAT, ACT, STAAR, degree, or military status</label>
+            </div>
+            <div class="radio">
+              <input type="radio" name="exempt" id="exemptNo" value="N" ${ans.exemption==='N'?'checked':''}>
+              <label for="exemptNo">No, I still need to meet the ${nice} requirement</label>
+            </div>
+          </div>
+
+          <div>
+            <label for="details">If exempt, tell us which exemption applies</label>
+            <input type="text" id="details" placeholder="Example: ACT English 23, Composite 23" value="${escapeHtml(ans.details)}" />
+            <div class="hint">In production this could trigger a document upload step.</div>
+          </div>
+
+          <div>
+            <label for="plan">If not exempt, what is your next step?</label>
+            <select id="plan">
+              <option value="">Select…</option>
+              <option value="schedule" ${ans.plan==='schedule'?'selected':''}>I will schedule the TSI ${nice} test</option>
+              <option value="advise" ${ans.plan==='advise'?'selected':''}>I will speak with an advisor</option>
+              <option value="unknown" ${ans.plan==='unknown'?'selected':''}>I am not sure yet</option>
+            </select>
+          </div>
+        </div>
+      `;
+
+      // wire events
+      viewContainer.querySelectorAll('input[name="exempt"]').forEach(r=>{
+        r.addEventListener('change', e=>{
+          state.answers[sectionKey].exemption = e.target.value;
+        });
+      });
+      document.getElementById('details').addEventListener('input', e=>{
+        state.answers[sectionKey].details = e.target.value;
+      });
+      document.getElementById('plan').addEventListener('change', e=>{
+        state.answers[sectionKey].plan = e.target.value;
+      });
+    }
+
+    function renderSummary(){
+      const needs = [];
+      if (state.milestones.TSIR==='N') needs.push('Reading');
+      if (state.milestones.TSIW==='N') needs.push('Writing');
+      if (state.milestones.TISM==='N') needs.push('Math');
+
+      const lines = needs.map(area=>{
+        const key = area.toLowerCase();
+        const a = state.answers[key] || {};
+        const exempt = a.exemption === 'Y';
+        const pill = exempt
+          ? `<span class="pill">Exempt submitted</span>`
+          : `<span class="pill bad">Still required</span>`;
+        const detail = a.details ? `<div class="muted">Details: ${escapeHtml(a.details)}</div>` : '';
+        const next = !exempt ? (a.plan ? `Next step: ${planLabel(a.plan)}` : 'Next step: not chosen') : '';
+        return `
+          <div style="border:1px solid var(--ps-border);border-radius:10px;padding:12px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between"><strong>${area}</strong> ${pill}</div>
+            ${detail}
+            <div class="muted">${next}</div>
+          </div>
+        `;
+      }).join('');
+
+      const allSatisfied = needs.length===0 || needs.every(area=> state.answers[area.toLowerCase()].exemption==='Y');
+
+      viewContainer.innerHTML = `
+        <div class="summary-list">${lines || '<div class="muted">All areas satisfied. No additional testing is required.</div>'}</div>
+        <div style="margin-top:16px">
+          ${allSatisfied
+            ? '<div class="pill" style="background:#eef7ff;border-color:#cfe1ff;color:#1b6aa5">Ready to register</div>'
+            : '<div class="pill bad">Action needed before registration</div>'}
+        </div>
+      `;
+    }
+
+    function planLabel(v){
+      return v==='schedule' ? 'Schedule the TSI test' : v==='advise' ? 'Speak with an advisor' : 'Undecided';
+    }
+
+    // ---------------------------
+    // Navigation
+    // ---------------------------
+    backBtn.addEventListener('click', ()=>{
+      if (state.stepIndex>0){ state.stepIndex--; render(); }
+    });
+
+    nextBtn.addEventListener('click', ()=>{
+      const stepsNow = getAllSteps();
+      if (stepsNow[state.stepIndex].key === 'summary'){
+        // In a real Task, this would submit. Here we just show a finish toast.
+        alert('Demo complete. In production, this would create or update the student task.');
+        return;
+      }
+      if (state.stepIndex < stepsNow.length-1){ state.stepIndex++; render(); }
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      if (!confirm('Reset all selections?')) return;
+      state.stepIndex = 0;
+      state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
+      state.answers = { reading:{exemption:'',details:'',plan:''}, writing:{exemption:'',details:'',plan:''}, math:{exemption:'',details:'',plan:''} };
+      render();
+    });
+
+    function enforceStepBounds(){
+      // If current step no longer exists due to milestone change, clamp index
+      const total = getAllSteps().length;
+      if (state.stepIndex > total-1){ state.stepIndex = total-1; }
+    }
+
+    function loadSample(which){
+      if (which==='allN'){
+        state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
+      } else if (which==='mathOnly'){
+        state.milestones = { TSIR:'Y', TSIW:'Y', TISM:'N' };
+      } else if (which==='none'){
+        state.milestones = { TSIR:'Y', TSIW:'Y', TISM:'Y' };
+      }
+      // clear answers when profile changes
+      state.answers = { reading:{exemption:'',details:'',plan:''}, writing:{exemption:'',details:'',plan:''}, math:{exemption:'',details:'',plan:''} };
+      state.stepIndex = 1; // jump back to profile to show effect
+      render();
+    }
+
+    function escapeHtml(str){
+      return (str||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    }
+
+    // Kick off
+    render();
+  </script>
+</body>
+</html>
