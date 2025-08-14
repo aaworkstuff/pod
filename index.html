@@ -469,13 +469,25 @@
 
     function computeDynamicSteps() {
       const dyn = [];
-      if (state.milestones.TSIR === 'N' || state.milestones.TSIW === 'N') {
-        dyn.push({ key: 'rw_exempt', label: 'Reading & Writing' });
+      
+      // Check if all TSI requirements are already satisfied
+      const allSatisfied = state.milestones.TSIR === 'Y' && state.milestones.TSIW === 'Y' && state.milestones.TISM === 'Y';
+      
+      if (allSatisfied) {
+        // For students with all requirements satisfied, no additional steps needed
+        // They'll stay on the profile page
+        return [...stepsStatic];
+      } else {
+        // Show exemption pages for areas that need them
+        if (state.milestones.TSIR === 'N' || state.milestones.TSIW === 'N') {
+          dyn.push({ key: 'rw_exempt', label: 'Reading & Writing' });
+        }
+        if (state.milestones.TISM === 'N') {
+          dyn.push({ key: 'm_exempt', label: 'Math' });
+        }
+        dyn.push({ key: 'summary', label: 'Results' });
       }
-      if (state.milestones.TISM === 'N') {
-        dyn.push({ key: 'm_exempt', label: 'Math' });
-      }
-      dyn.push({ key: 'summary', label: 'Results' });
+      
       return [...stepsStatic, ...dyn];
     }
 
@@ -494,6 +506,7 @@
     function render() {
       const steps = computeDynamicSteps();
       const current = steps[state.stepIndex];
+      const allSatisfied = state.milestones.TSIR === 'Y' && state.milestones.TSIW === 'Y' && state.milestones.TISM === 'Y';
       
       const progressContainer = document.getElementById('progressSteps');
       const navigationButtons = document.getElementById('navigationButtons');
@@ -506,7 +519,11 @@
       } else {
         progressContainer.style.display = 'flex';
         navigationButtons.style.display = 'flex';
-        resetButtonsContainer.style.display = 'flex';
+        
+        // Only show reset buttons on pages with inputs
+        const hasInputs = current.key === 'rw_exempt' || current.key === 'm_exempt';
+        resetButtonsContainer.style.display = hasInputs ? 'flex' : 'none';
+        
         renderProgress();
       }
       
@@ -531,12 +548,30 @@
       }
       
       if (current.key !== 'intro') {
-        document.getElementById('backBtn').disabled = state.stepIndex === 1;
+        const backBtn = document.getElementById('backBtn');
+        
+        if (allSatisfied && current.key === 'profile') {
+          backBtn.style.display = 'none';
+        } else if (current.key === 'summary') {
+          backBtn.style.display = 'none';
+        } else {
+          backBtn.style.display = 'inline-block';
+          backBtn.disabled = state.stepIndex === 1;
+        }
         const nextBtn = document.getElementById('nextBtn');
+        
+        // Check if this is the last step for students with all requirements satisfied
+        const isLastStep = state.stepIndex === steps.length - 1;
+        
         if (current.key === 'summary') {
-          nextBtn.textContent = 'Complete Assessment';
+          nextBtn.style.display = 'none';
+        } else if (allSatisfied && current.key === 'profile') {
+          nextBtn.style.display = 'none';
+        } else if (isLastStep) {
+          nextBtn.style.display = 'none';
         } else {
           nextBtn.textContent = 'Next';
+          nextBtn.style.display = 'inline-block';
         }
       }
     }
@@ -544,7 +579,6 @@
     function renderIntro(container) {
       container.innerHTML = `
         <div class="form-section">
-          <h3>Welcome to the TSI Exemption Determination</h3>
           <p>This tool will help you determine if you qualify for TSI exemptions in Reading, Writing, and/or Math.</p>
           
           <div style="max-width: 400px; margin: 30px auto; background: white; padding: 30px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -602,6 +636,12 @@
       const { TSIR, TSIW, TISM } = state.milestones;
       const { testScores, transcripts } = state.studentData;
       
+      // Check if all TSI requirements are satisfied
+      const allSatisfied = TSIR === 'Y' && TSIW === 'Y' && TISM === 'Y';
+      
+      // Filter test scores to only show those that satisfy TSI requirements
+      const relevantTestScores = testScores.filter(score => score.status.includes('Qualifies'));
+      
       const needsAreas = [];
       if (TSIR === 'N') needsAreas.push('reading');
       if (TSIW === 'N') needsAreas.push('writing');
@@ -620,8 +660,8 @@
       
       container.innerHTML = `
         <div class="form-section">
-          <h3>Test Scores Received</h3>
-          ${testScores.length > 0 ? `
+          <h3>Test Scores That Satisfy TSI Requirements</h3>
+          ${relevantTestScores.length > 0 ? `
             <table class="info-table">
               <thead>
                 <tr>
@@ -633,49 +673,95 @@
                 </tr>
               </thead>
               <tbody>
-                ${testScores.map(score => `
+                ${relevantTestScores.map(score => `
                   <tr>
                     <td>${score.testType}</td>
                     <td>${score.component}</td>
                     <td>${score.score}</td>
                     <td>${score.dateReceived}</td>
-                    <td><span class="status-pill ${score.status.includes('Qualifies') ? 'status-exempt' : 'status-needed'}">${score.status}</span></td>
+                    <td><span class="status-pill status-exempt">${score.status}</span></td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
           ` : `
-            <p style="color: #666; font-style: italic;">No test scores on file.</p>
+            <p style="color: #666; font-style: italic;">No qualifying test scores on file.</p>
           `}
         </div>
 
-        <div class="form-section">
-          <h3>Transcripts Received</h3>
-          ${transcripts.length > 0 ? `
-            <table class="info-table">
-              <thead>
-                <tr>
-                  <th>Institution</th>
-                  <th>Date Received</th>
-                  <th>Date Evaluated</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${transcripts.map(transcript => `
-                  <tr>
-                    <td>${transcript.institution}</td>
-                    <td>${transcript.dateReceived || '<span style="color: #666;">—</span>'}</td>
-                    <td>${transcript.dateEvaluated || '<span style="color: #666;">—</span>'}</td>
-                    <td><span class="status-pill ${getTranscriptStatusClass(transcript.status)}">${transcript.status}</span></td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          ` : `
-            <p style="color: #666; font-style: italic;">No transcripts on file.</p>
-          `}
-        </div>
+        ${!allSatisfied ? `
+          <div class="form-section">
+            ${(() => {
+              // Separate transcripts by status
+              const didNotQualify = transcripts.filter(t => t.status === 'Does not Qualify for Exemption');
+              const mayQualify = transcripts.filter(t => t.status === 'Not received' || t.status === 'Not evaluated' || (!t.status.includes('Does not Qualify') && !t.status.includes('Qualifies')));
+              
+              let html = '';
+              
+              if (didNotQualify.length > 0) {
+                html += `
+                  <h3>Did Not Qualify for Exemptions</h3>
+                  <table class="info-table">
+                    <thead>
+                      <tr>
+                        <th>Institution</th>
+                        <th>Date Received</th>
+                        <th>Date Evaluated</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${didNotQualify.map(transcript => `
+                        <tr>
+                          <td>${transcript.institution}</td>
+                          <td>${transcript.dateReceived || '<span style="color: #666;">—</span>'}</td>
+                          <td>${transcript.dateEvaluated || '<span style="color: #666;">—</span>'}</td>
+                          <td><span class="status-pill ${getTranscriptStatusClass(transcript.status)}">${transcript.status}</span></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                `;
+              }
+              
+              if (mayQualify.length > 0) {
+                html += `
+                  ${didNotQualify.length > 0 ? '<div style="margin-top: 30px;"></div>' : ''}
+                  <h3>Transcripts That May Qualify for Exemptions</h3>
+                  <table class="info-table">
+                    <thead>
+                      <tr>
+                        <th>Institution</th>
+                        <th>Date Received</th>
+                        <th>Date Evaluated</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${mayQualify.map(transcript => `
+                        <tr>
+                          <td>${transcript.institution}</td>
+                          <td>${transcript.dateReceived || '<span style="color: #666;">—</span>'}</td>
+                          <td>${transcript.dateEvaluated || '<span style="color: #666;">—</span>'}</td>
+                          <td><span class="status-pill ${getTranscriptStatusClass(transcript.status)}">${transcript.status}</span></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                `;
+              }
+              
+              if (didNotQualify.length === 0 && mayQualify.length === 0) {
+                html = `
+                  <h3>Transcripts</h3>
+                  <p style="color: #666; font-style: italic;">No transcripts on file.</p>
+                `;
+              }
+              
+              return html;
+            })()}
+          </div>
+        ` : ''}
 
         <div class="form-section">
           <h3>View Different Student Scenarios</h3>
@@ -692,9 +778,15 @@
             <p style="font-size: 16px; margin: 0;">${statusMessage}</p>
           </div>
           
-          <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <strong>Developer Note:</strong> This data is pulled from PeopleSoft tables when the student logs in. Test scores come from test score tables (one row per score component) and transcripts from transfer credit tables.
-          </div>
+          ${allSatisfied ? `
+            <div style="background: #d4edda; padding: 20px; border-radius: 5px; margin: 20px 0; border: 1px solid #c3e6cb;">
+              <h4 style="color: #155724; margin: 0;">✓ No Action Required</h4>
+            </div>
+          ` : `
+            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <strong>Developer Note:</strong> This data is pulled from PeopleSoft tables when the student logs in. Test scores are filtered to only show those that satisfy TSI requirements, and transcripts show evaluation status for exemption eligibility.
+            </div>
+          `}
         </div>
       `;
       
@@ -883,6 +975,11 @@
       const rwExempt = needRW ? exemptionDecision('reading') : true;
       const mExempt = needM ? exemptionDecision('math') : true;
       
+      // Check for exemptions selected but no documentation sent
+      const rwExemptNoDoc = needRW && rwExempt && state.answers.reading.proof.sent !== 'Y';
+      const mExemptNoDoc = needM && mExempt && state.answers.math.proof.sent !== 'Y';
+      const hasExemptionsWithoutDocs = rwExemptNoDoc || mExemptNoDoc;
+      
       const allGood = (!needRW || rwExempt) && (!needM || mExempt);
       
       container.innerHTML = `
@@ -895,6 +992,13 @@
             </h4>
             <p>${allGood ? 'Based on the information you provided, you may qualify for TSI exemptions. You must submit official documentation to finalize these exemptions.' : 'You will need to take the TSIA2 assessment for areas where no exemptions apply.'}</p>
           </div>
+          
+          ${hasExemptionsWithoutDocs ? `
+            <div style="background: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0; border: 1px solid #ffeaa7;">
+              <h4 style="color: #856404;">⚠ Exemption Not Received</h4>
+              <p style="color: #856404; margin: 0;">You have selected exemptions but have not yet provided official documentation. Please verify with the sending institution that your documentation was submitted using one of the approved official methods. Your exemptions cannot be processed until we receive the required official documentation.</p>
+            </div>
+          ` : ''}
           
           <table class="info-table">
             <thead>
@@ -937,10 +1041,9 @@
               <ul style="margin: 10px 0 0 20px;">
                 <li>Submit official documentation for each claimed exemption</li>
                 <li>Use only the official submission methods shown in this assessment</li>
-                <li>Allow 3-5 business days for evaluation after submission</li>
-                <li>Check your myLoneStar portal for exemption approval status</li>
+                <li>Verify with the sending institution that your documentation has been sent</li>
+                <li>Check your myLoneStar email account. You will receive an email once test scores/transcripts are received</li>
               </ul>
-              <p style="margin-top: 15px;"><strong>Until official documentation is received and approved, you may not register for classes that require TSI satisfaction.</strong></p>
             ` : `
               <p><strong>For areas without exemptions:</strong></p>
               <ul style="margin: 10px 0 0 20px;">
@@ -1197,10 +1300,7 @@
 
     document.getElementById('nextBtn').addEventListener('click', () => {
       const steps = computeDynamicSteps();
-      if (steps[state.stepIndex].key === 'summary') {
-        alert('Assessment complete! This would save your exemption determination to your student record.');
-        return;
-      }
+      
       if (state.stepIndex < steps.length - 1) {
         state.stepIndex++;
         render();
