@@ -398,14 +398,14 @@
     };
 
     const EXPLAINS = {
-      degree: 'You are exempt if you have graduated with an associate or baccalaureate degree from a U.S. Department of Education accredited postsecondary institution.',
-      transfer_rw: 'You are exempt in Reading and Writing if you transferred to LSC from an eligible institution and have satisfactorily completed a college-level ENGLISH course.',
-      transfer_m: 'You are exempt in Math if you transferred to LSC from an eligible institution and have satisfactorily completed a college-level MATH course.',
-      priorReady: 'You are exempt if a prior college has already determined that you met college readiness standards.',
-      activeDuty: 'You are exempt if you are serving on active duty in the U.S. armed forces, Texas National Guard, or a reserve component for at least three years preceding enrollment.',
+      degree: 'You are exempt if you have graduated with an associate or bachelor\'s degree from an accredited college or university.',
+      transfer_rw: 'You are exempt in Reading and Writing if you transferred to LSC from another college and completed an English composition or writing course with a passing grade.',
+      transfer_m: 'You are exempt in Math if you transferred to LSC from another college and completed a college-level math course with a passing grade.',
+      priorReady: 'You are exempt if a previous college already determined that you met college readiness standards.',
+      activeDuty: 'You are exempt if you are currently serving on active duty in the U.S. armed forces, Texas National Guard, or reserves for at least three years before enrolling.',
       veteran: 'You are exempt if you were honorably discharged, retired, or released from active duty on or after August 1, 1990.',
-      cpp: 'You are exempt in the content area if you successfully completed a college preparatory course through an LSC-partnered school district. Exemption lasts 24 months from high school graduation and requires enrolling in the first college-level course in that area in the first year at LSC.',
-      nonDegree: 'Non-degree seeking students are TSI exempt.'
+      cpp: 'You are exempt if you successfully completed a college preparatory course through a high school partnered with LSC. This exemption lasts 24 months from high school graduation.',
+      nonDegree: 'Students not seeking a degree are automatically TSI exempt.'
     };
 
     const TESTS = {
@@ -429,7 +429,7 @@
 
     const OFFICIAL_METHODS = {
       transcript: [
-        'Electronic via SPEEDE network (sent directly from institution)',
+        'Sent electronically by your previous college or university',
         'Official PDF emailed directly from college/university to Registrar@LoneStar.edu'
       ],
       act: ['Official ACT scores sent via ACT website to LSC (School Code: 006508)'],
@@ -558,8 +558,8 @@
           backBtn.style.display = 'inline-block';
           backBtn.disabled = state.stepIndex === 1;
         }
-        const nextBtn = document.getElementById('nextBtn');
         
+        const nextBtn = document.getElementById('nextBtn');
         // Check if this is the last step for students with all requirements satisfied
         const isLastStep = state.stepIndex === steps.length - 1;
         
@@ -659,6 +659,13 @@
       }
       
       container.innerHTML = `
+        ${!allSatisfied ? `
+          <div style="background: #e6f3ff; padding: 20px; border-radius: 5px; margin-bottom: 25px; border-left: 4px solid #003366;">
+            <h4 style="color: #003366; margin-bottom: 10px;">Why am I using this tool?</h4>
+            <p style="margin: 0; color: #333;">You're using this tool because LSC needs official documentation to verify your TSI exemptions. Even if you have qualifying test scores, we need them sent directly from the testing agency or institution to make them official.</p>
+          </div>
+        ` : ''}
+        
         <div class="form-section">
           <h3>Test Scores That Satisfy TSI Requirements</h3>
           ${relevantTestScores.length > 0 ? `
@@ -810,6 +817,15 @@
           <h3>${areaLabel} Exemptions</h3>
           <p>Select all exemptions that apply to you. You may qualify for multiple exemptions.</p>
           
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 3px solid #28a745;">
+            <strong>Most students qualify through:</strong>
+            <ol style="margin: 10px 0 0 20px; color: #333;">
+              <li>Recent SAT/ACT scores sent directly from the testing agency</li>
+              <li>College transcripts showing completed ${isRW ? 'English composition or writing' : 'math'} courses with passing grades</li>
+              <li>Military service documentation</li>
+            </ol>
+          </div>
+          
           <div style="margin: 20px 0;">
             <span class="status-pill ${hasExemption ? 'status-exempt' : 'status-needed'}">
               ${hasExemption ? 'Exemption Found' : 'No Exemption Selected'}
@@ -831,7 +847,7 @@
                 
                 <div class="checkbox-item" style="margin-top: 15px;">
                   <input type="checkbox" id="transfer-${which}" ${sel.transfer ? 'checked' : ''}>
-                  <label for="transfer-${which}">${isRW ? 'I transferred with completed college-level ENGLISH coursework with a passing grade' : 'I transferred with completed college-level MATH coursework with a passing grade'}</label>
+                  <label for="transfer-${which}">${isRW ? 'I transferred with completed English composition or writing coursework with a passing grade' : 'I transferred with completed college-level math coursework with a passing grade'}</label>
                 </div>
                 <div class="hint">${isRW ? EXPLAINS.transfer_rw : EXPLAINS.transfer_m}</div>
                 
@@ -859,13 +875,13 @@
               <div class="checkbox-group">
                 <div class="checkbox-item">
                   <input type="checkbox" id="activeDuty-${which}" ${sel.activeDuty ? 'checked' : ''}>
-                  <label for="activeDuty-${which}">I have served on active duty for at least 3 years preceding enrollment</label>
+                  <label for="activeDuty-${which}">I am currently serving on active duty for at least 3 years before enrolling</label>
                 </div>
                 <div class="hint">${EXPLAINS.activeDuty}</div>
                 
                 <div class="checkbox-item" style="margin-top: 15px;">
                   <input type="checkbox" id="veteran-${which}" ${sel.veteran ? 'checked' : ''}>
-                  <label for="veteran-${which}">I was honorably discharged, retired, or released on or after Aug 1, 1990</label>
+                  <label for="veteran-${which}">I am a veteran who was honorably discharged, retired, or released on or after Aug 1, 1990</label>
                 </div>
                 <div class="hint">${EXPLAINS.veteran}</div>
               </div>
@@ -881,7 +897,7 @@
               <div class="checkbox-group">
                 <div class="checkbox-item">
                   <input type="checkbox" id="cpp-${which}" ${sel.cpp ? 'checked' : ''}>
-                  <label for="cpp-${which}">I completed a partnered high school College Preparatory Course in this subject within 24 months of HS graduation</label>
+                  <label for="cpp-${which}">I completed a college prep course in this subject at a partnered high school within 24 months of graduation</label>
                 </div>
                 <div class="hint">${EXPLAINS.cpp}</div>
               </div>
@@ -988,9 +1004,9 @@
           
           <div style="background: ${allGood ? '#e6f3ff' : '#f8d7da'}; padding: 20px; border-radius: 5px; margin: 20px 0;">
             <h4 style="color: ${allGood ? '#003366' : '#721c24'};">
-              ${allGood ? '✓ Potential Exemptions Found' : '⚠ No Exemptions Selected'}
+              ${allGood ? '✓ Exemptions Claimed' : '⚠ No Exemptions Selected'}
             </h4>
-            <p>${allGood ? 'Based on the information you provided, you may qualify for TSI exemptions. You must submit official documentation to finalize these exemptions.' : 'You will need to take the TSIA2 assessment for areas where no exemptions apply.'}</p>
+            <p>${allGood ? 'Based on the information you provided, you have claimed TSI exemptions. You must submit official documentation to complete the exemption process.' : 'You will need to take the TSIA2 assessment for areas where no exemptions apply.'}</p>
           </div>
           
           ${hasExemptionsWithoutDocs ? `
@@ -1013,7 +1029,7 @@
               ${needRW ? `
                 <tr>
                   <td>Reading & Writing</td>
-                  <td><span class="status-pill ${rwExempt ? 'status-warning' : 'status-needed'}">${rwExempt ? 'Potential Exemption' : 'TSIA2 Required'}</span></td>
+                  <td><span class="status-pill ${rwExempt ? 'status-warning' : 'status-needed'}">${rwExempt ? 'Exemption Claimed - Documentation Needed' : 'TSIA2 Required'}</span></td>
                   <td>${listSelections('reading').join(', ') || 'None'}</td>
                   <td>${state.answers.reading.proof.sent === 'Y' ? '<span class="status-pill status-exempt">Submitted</span>' : state.answers.reading.proof.sent === 'N' ? '<span class="status-pill status-warning">Pending</span>' : '<span class="status-pill status-needed">Required</span>'}</td>
                 </tr>
@@ -1021,7 +1037,7 @@
               ${needM ? `
                 <tr>
                   <td>Math</td>
-                  <td><span class="status-pill ${mExempt ? 'status-warning' : 'status-needed'}">${mExempt ? 'Potential Exemption' : 'TSIA2 Required'}</span></td>
+                  <td><span class="status-pill ${mExempt ? 'status-warning' : 'status-needed'}">${mExempt ? 'Exemption Claimed - Documentation Needed' : 'TSIA2 Required'}</span></td>
                   <td>${listSelections('math').join(', ') || 'None'}</td>
                   <td>${state.answers.math.proof.sent === 'Y' ? '<span class="status-pill status-exempt">Submitted</span>' : state.answers.math.proof.sent === 'N' ? '<span class="status-pill status-warning">Pending</span>' : '<span class="status-pill status-needed">Required</span>'}</td>
                 </tr>
@@ -1044,6 +1060,7 @@
                 <li>Verify with the sending institution that your documentation has been sent</li>
                 <li>Check your myLoneStar email account. You will receive an email once test scores/transcripts are received</li>
               </ul>
+              <p style="margin-top: 15px; font-style: italic; color: #666;"><strong>Processing time:</strong> Allow [X business days] for evaluation after LSC receives your documentation. <em>(Note: Determine actual processing time and update this placeholder)</em></p>
             ` : `
               <p><strong>For areas without exemptions:</strong></p>
               <ul style="margin: 10px 0 0 20px;">
@@ -1204,13 +1221,13 @@
     function listSelections(areaKey) {
       const map = state.answers[areaKey].selections || {};
       const labels = {
-        degree: 'Degree earned',
-        transfer: 'Transfer with college coursework',
-        priorReady: 'Prior college readiness determination',
-        activeDuty: 'Active duty',
-        veteran: 'Veteran',
-        cpp: 'College prep course',
-        nonDegree: 'Non-degree seeking',
+        degree: 'College degree earned',
+        transfer: 'Transfer coursework completed',
+        priorReady: 'Previous college readiness determination',
+        activeDuty: 'Active military duty',
+        veteran: 'Military veteran',
+        cpp: 'College prep course completed',
+        nonDegree: 'Non-degree seeking student',
         act_rw_old: 'ACT Eng 19 + Comp 23',
         act_rw_new: 'ACT E+R ≥ 40',
         sat_rw: 'SAT EBRW ≥ 480',
