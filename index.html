@@ -103,7 +103,10 @@
               <div style="font-weight:700" id="view-title">Loading…</div>
               <div class="progress"><div id="progress-bar"></div></div>
             </div>
-            <button class="btn ghost" id="resetBtn" title="Reset all answers">Reset</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost" id="resetPageBtn" title="Reset this page only">Reset Page</button>
+              <button class="btn ghost" id="startOverBtn" title="Start over from beginning">Start Over</button>
+            </div>
           </div>
         </div>
         <div class="card-bd" id="view-container"></div>
@@ -166,6 +169,40 @@
       ]
     };
 
+    // Official submission methods based on LSC requirements
+    const OFFICIAL_METHODS = {
+      // For transcript-based exemptions
+      transcript: [
+        'Electronic via SPEEDE network (sent directly from institution)',
+        'Official PDF emailed directly from college/university to Registrar@LoneStar.edu'
+      ],
+      // For test score exemptions
+      act: [
+        'Official ACT scores sent via ACT website to LSC (School Code: 006508)'
+      ],
+      sat: [
+        'Official SAT scores sent via collegeboard.org to LSC (School Code: 006508)'
+      ],
+      ged: [
+        'Official GED scores submitted via GED Testing Service Website'
+      ],
+      hiset: [
+        'Official HiSET scores submitted via ETS HiSET Test website'
+      ],
+      staar: [
+        'Official high school transcript sent directly from high school'
+      ],
+      // For other exemptions that may need documentation
+      military: [
+        'DD-214 or military documentation sent directly from military records',
+        'Official military transcript or documentation mailed to LSC Registrar'
+      ],
+      cpp: [
+        'Official high school transcript sent directly from high school',
+        'Documentation from partnered school district sent to LSC'
+      ]
+    };
+
     const stepsStatic = [
       { key: 'intro',   label: 'Introduction' },
       { key: 'profile', label: 'Student flags' },
@@ -177,6 +214,47 @@
       if (state.milestones.TISM === 'N') dyn.push({ key:'m_exempt', label:'Math exemptions' });
       dyn.push({ key:'summary', label:'Summary' });
       return [...stepsStatic, ...dyn];
+    }
+
+    // Helper function to determine official submission methods based on selections
+    function getOfficialMethods(areaKey) {
+      const selections = state.answers[areaKey].selections;
+      const methods = [];
+
+      // Check for transcript-based exemptions
+      if (selections.degree || selections.transfer || selections.priorReady) {
+        methods.push(...OFFICIAL_METHODS.transcript);
+      }
+
+      // Check for military exemptions
+      if (selections.activeDuty || selections.veteran) {
+        methods.push(...OFFICIAL_METHODS.military);
+      }
+
+      // Check for college prep course
+      if (selections.cpp) {
+        methods.push(...OFFICIAL_METHODS.cpp);
+      }
+
+      // Check for test score exemptions
+      if (selections.act_rw_old || selections.act_rw_new || selections.act_m_old || selections.act_m_new) {
+        methods.push(...OFFICIAL_METHODS.act);
+      }
+      if (selections.sat_rw || selections.sat_m) {
+        methods.push(...OFFICIAL_METHODS.sat);
+      }
+      if (selections.ged_rw || selections.ged_m) {
+        methods.push(...OFFICIAL_METHODS.ged);
+      }
+      if (selections.hiset_rw || selections.hiset_m) {
+        methods.push(...OFFICIAL_METHODS.hiset);
+      }
+      if (selections.staar_eng3 || selections.staar_alg2) {
+        methods.push(...OFFICIAL_METHODS.staar);
+      }
+
+      // Remove duplicates and return
+      return [...new Set(methods)];
     }
 
     // ---------------------------
@@ -208,19 +286,26 @@
     }
 
     function render(){
-      const stepsNow = computeDynamicSteps();
-      const current = stepsNow[state.stepIndex];
-      renderSidebar(); setProgress();
-      viewTitle.textContent = current.label;
-      switch(current.key){
-        case 'intro': renderIntro(); break;
-        case 'profile': renderProfile(); break;
-        case 'rw_exempt': renderExemptions('rw'); break;
-        case 'm_exempt': renderExemptions('m'); break;
-        case 'summary': renderSummary(); break;
+      try {
+        console.log('Rendering step:', state.stepIndex, 'Milestones:', state.milestones); // Debug log
+        const stepsNow = computeDynamicSteps();
+        const current = stepsNow[state.stepIndex];
+        console.log('Current step key:', current.key, 'label:', current.label); // Debug log
+        renderSidebar(); setProgress();
+        viewTitle.textContent = current.label;
+        switch(current.key){
+          case 'intro': renderIntro(); break;
+          case 'profile': renderProfile(); break;
+          case 'rw_exempt': renderExemptions('rw'); break;
+          case 'm_exempt': renderExemptions('m'); break;
+          case 'summary': renderSummary(); break;
+        }
+        backBtn.disabled = state.stepIndex === 0;
+        nextBtn.textContent = current.key === 'summary' ? 'Finish' : 'Next';
+        console.log('Render complete'); // Debug log
+      } catch (error) {
+        console.error('Error in render():', error);
       }
-      backBtn.disabled = state.stepIndex === 0;
-      nextBtn.textContent = current.key === 'summary' ? 'Finish' : 'Next';
     }
 
     // ---------------------------
@@ -234,6 +319,7 @@
             <ul>
               <li>Reading and Writing are grouped together where rules are identical.</li>
               <li>Math is handled separately.</li>
+              <li><strong>NEW:</strong> Official submission methods are now tailored to your specific exemption type.</li>
             </ul>
             <details open>
               <summary>What counts as an exemption?</summary>
@@ -272,12 +358,12 @@
             </select>
             <div class="hint">If set to N, Math exemptions will be asked.</div>
           </div>
-          <div class="section">
+                      <div class="section">
             <label>Load sample student</label>
             <div class="row cols-3">
-              <button class="btn" onclick="loadSample('needsAll')">Needs all</button>
-              <button class="btn" onclick="loadSample('mathOnly')">Math only</button>
-              <button class="btn" onclick="loadSample('none')">All satisfied</button>
+              <button class="btn" id="sampleNeedsAll">Needs all</button>
+              <button class="btn" id="sampleMathOnly">Math only</button>
+              <button class="btn" id="sampleNone">All satisfied</button>
             </div>
           </div>
         </div>`;
@@ -285,6 +371,11 @@
       document.getElementById('tsir').addEventListener('change', e=>{ state.milestones.TSIR = e.target.value; clampStep(); render(); });
       document.getElementById('tsiw').addEventListener('change', e=>{ state.milestones.TSIW = e.target.value; clampStep(); render(); });
       document.getElementById('tism').addEventListener('change', e=>{ state.milestones.TISM = e.target.value; clampStep(); render(); });
+      
+      // Add sample button event listeners
+      document.getElementById('sampleNeedsAll').addEventListener('click', () => loadSample('needsAll'));
+      document.getElementById('sampleMathOnly').addEventListener('click', () => loadSample('mathOnly'));
+      document.getElementById('sampleNone').addEventListener('click', () => loadSample('none'));
     }
 
     function renderExemptions(which){
@@ -306,22 +397,19 @@
             <summary>College enrollment or completion</summary>
             <div class="row">
               <div class="checklist">
-                ${makeCheck('degree', 'I have an associate or bachelor\'s degree', sel.degree)}
+                ${makeCheck('degree', 'I have an associate or bachelor\'s degree', sel.degree || false)}
                 <div class="hint">${EXPLAINS.degree}</div>
               </div>
               <div class="checklist">
-                ${makeCheck('transfer', 'I transferred with completed college-level coursework', sel.transfer)}
+                ${makeCheck('transfer', isRW ? 'I transferred with completed college-level ENGLISH coursework with a passing grade' : 'I transferred with completed college-level MATH coursework with a passing grade', sel.transfer || false)}
                 <div class="hint">${isRW ? EXPLAINS.transfer_rw : EXPLAINS.transfer_m}</div>
-                <div class="row cols-2">
-                  ${makeCheck('transfer_course', isRW ? 'I completed a college-level ENGLISH course with a passing grade' : 'I completed a college-level MATH course with a passing grade', sel.transfer_course)}
-                </div>
               </div>
               <div class="checklist">
-                ${makeCheck('priorReady', 'A prior college already determined I was college ready', sel.priorReady)}
+                ${makeCheck('priorReady', 'A prior college already determined I was college ready', sel.priorReady || false)}
                 <div class="hint">${EXPLAINS.priorReady}</div>
               </div>
               <div class="checklist">
-                ${makeCheck('nonDegree', 'I am a non-degree seeking student', sel.nonDegree)}
+                ${makeCheck('nonDegree', 'I am a non-degree seeking student', sel.nonDegree || false)}
                 <div class="hint">${EXPLAINS.nonDegree}</div>
               </div>
             </div>
@@ -331,11 +419,11 @@
             <summary>Military status</summary>
             <div class="row">
               <div class="checklist">
-                ${makeCheck('activeDuty', 'I have served on active duty for at least 3 years preceding enrollment', sel.activeDuty)}
+                ${makeCheck('activeDuty', 'I have served on active duty for at least 3 years preceding enrollment', sel.activeDuty || false)}
                 <div class="hint">${EXPLAINS.activeDuty}</div>
               </div>
               <div class="checklist">
-                ${makeCheck('veteran', 'I was honorably discharged, retired, or released on or after Aug 1, 1990', sel.veteran)}
+                ${makeCheck('veteran', 'I was honorably discharged, retired, or released on or after Aug 1, 1990', sel.veteran || false)}
                 <div class="hint">${EXPLAINS.veteran}</div>
               </div>
             </div>
@@ -344,7 +432,7 @@
           <details id="d-cpp-${which}" ${ui.cpp ? 'open' : ''}>
             <summary>College preparatory course</summary>
             <div class="checklist">
-              ${makeCheck('cpp', 'I completed a partnered high school College Preparatory Course in this subject within 24 months of HS graduation', sel.cpp)}
+              ${makeCheck('cpp', 'I completed a partnered high school College Preparatory Course in this subject within 24 months of HS graduation', sel.cpp || false)}
               <div class="hint">${EXPLAINS.cpp}</div>
             </div>
           </details>
@@ -352,7 +440,7 @@
           <details id="d-tests-${which}" ${ui.tests ? 'open' : ''}>
             <summary>Test score options (${areaLabel})</summary>
             <div class="checklist">
-              ${testList.map(t => makeCheck(t.key, t.label, sel[t.key])).join('')}
+              ${testList.map(t => makeCheck(t.key, t.label, sel[t.key] || false)).join('')}
             </div>
           </details>
 
@@ -370,9 +458,18 @@
       viewContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         cb.addEventListener('change', e => {
           const key = e.target.dataset.key;
-          state.answers[areaKey].selections[key] = e.target.checked;
-          persistDetailsOpen(which);
-          render();
+          if (key) {
+            state.answers[areaKey].selections[key] = e.target.checked;
+            // Clear the proof method when selections change since available methods may change
+            if (state.answers[areaKey].proof.method) {
+              const newMethods = getOfficialMethods(areaKey);
+              if (!newMethods.includes(state.answers[areaKey].proof.method)) {
+                state.answers[areaKey].proof.method = '';
+              }
+            }
+            persistDetailsOpen(which);
+            render();
+          }
         });
       });
 
@@ -398,7 +495,8 @@
     }
 
     function proofBlock(areaKey, proof, which){
-      const methods = ['Official transcript sent electronically','Official transcript sent by mail','Uploaded document to portal','Emailed document to admissions','Other'];
+      const officialMethods = getOfficialMethods(areaKey);
+      
       return `
         <div class="section">
           <label>Have you already sent proof of your exemption for this area?</label>
@@ -417,19 +515,25 @@
             <div>
               <label for="${areaKey}_proof_method">How did you send it?</label>
               <select id="${areaKey}_proof_method">
-                <option value="">Select…</option>
-                ${methods.map(m=>`<option ${proof.method===m?'selected':''}>${m}</option>`).join('')}
+                <option value="">Select official submission method…</option>
+                ${officialMethods.map(m=>`<option value="${escapeHtml(m)}" ${proof.method===m?'selected':''}>${m}</option>`).join('')}
               </select>
+              <div class="hint">Only official submission methods are shown based on your selections.</div>
             </div>
           </div>
           <div style="margin-top:12px">
             <label for="${areaKey}_proof_notes">Notes (optional)</label>
-            <input type="text" id="${areaKey}_proof_notes" placeholder="Example: Sent ACT scores via MyACT" value="${escapeHtml(proof.notes)}"/>
+            <input type="text" id="${areaKey}_proof_notes" placeholder="Example: Sent ACT scores via MyACT portal" value="${escapeHtml(proof.notes)}"/>
           </div>
           ` : ''}
 
           ${proof.sent==='N' ? `
-          <div class="pill note" style="margin-top:12px">To finalize your exemption, submit official proof. Typical options include official transcripts or score reports sent directly from the testing agency or school. Check LSC instructions for accepted delivery methods.</div>
+          <div class="pill note" style="margin-top:12px">
+            To finalize your exemption, submit official proof using one of these methods:
+            <ul style="margin-top:8px;margin-bottom:0">
+              ${officialMethods.map(m => `<li>${m}</li>`).join('')}
+            </ul>
+          </div>
           ` : ''}
         </div>`;
     }
@@ -459,23 +563,37 @@
     // Helpers
     // ---------------------------
     function makeCheck(key, label, checked){
-      return `<label class="check"><input type="checkbox" data-key="${key}" ${checked? 'checked':''}> <span>${label}</span></label>`;
+      return `<label class="check"><input type="checkbox" data-key="${key}" ${checked ? 'checked' : ''}> <span>${label}</span></label>`;
     }
 
     function exemptionDecision(areaKey){
       const s = state.answers[areaKey].selections || {};
-      // Require combined transfer_course for transfer to count
-      const transferValid = s.transfer && s.transfer_course;
-      const other = Object.entries(s).some(([k,v]) => v && !['transfer','transfer_course'].includes(k));
-      return transferValid || other;
+      // Any exemption is valid (transfer no longer requires separate course check)
+      return Object.entries(s).some(([k,v]) => v);
     }
 
     function listSelections(areaKey){
       const map = state.answers[areaKey].selections || {};
       const labels = {
-        degree:'Degree earned', transfer:'Transfer with college credit', transfer_course:'Required course completed with passing grade', priorReady:'Prior college readiness determination', activeDuty:'Active duty', veteran:'Veteran', cpp:'College prep course', nonDegree:'Non-degree seeking',
-        act_rw_old:'ACT Eng 19 + Comp 23', act_rw_new:'ACT E+R ≥ 40', sat_rw:'SAT EBRW ≥ 480', ged_rw:'GED RLA ≥ 165', hiset_rw:'HiSET R15 W15 Essay≥4', staar_eng3:'STAAR Eng III ≥ 4000',
-        act_m_old:'ACT Math 19 + Comp 23', act_m_new:'ACT Math ≥ 22', sat_m:'SAT Math ≥ 530', ged_m:'GED Math ≥ 165', hiset_m:'HiSET Math ≥ 15', staar_alg2:'STAAR Alg II ≥ 4000'
+        degree:'Degree earned', 
+        transfer:'Transfer with college coursework', 
+        priorReady:'Prior college readiness determination', 
+        activeDuty:'Active duty', 
+        veteran:'Veteran', 
+        cpp:'College prep course', 
+        nonDegree:'Non-degree seeking',
+        act_rw_old:'ACT Eng 19 + Comp 23', 
+        act_rw_new:'ACT E+R ≥ 40', 
+        sat_rw:'SAT EBRW ≥ 480', 
+        ged_rw:'GED RLA ≥ 165', 
+        hiset_rw:'HiSET R15 W15 Essay≥4', 
+        staar_eng3:'STAAR Eng III ≥ 4000',
+        act_m_old:'ACT Math 19 + Comp 23', 
+        act_m_new:'ACT Math ≥ 22', 
+        sat_m:'SAT Math ≥ 530', 
+        ged_m:'GED Math ≥ 165', 
+        hiset_m:'HiSET Math ≥ 15', 
+        staar_alg2:'STAAR Alg II ≥ 4000'
       };
       return Object.keys(map).filter(k=>map[k]).map(k=>labels[k]||k);
     }
@@ -532,6 +650,9 @@
       render();
     }
 
+    // Make loadSample global so the buttons can access it
+    window.loadSample = loadSample;
+
     function clampStep(){
       const total = computeDynamicSteps().length;
       if (state.stepIndex > total-1){ state.stepIndex = total-1; }
@@ -539,6 +660,54 @@
 
     function escapeHtml(str){
       return (str||'').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    }
+
+    function resetPage(){
+      console.log('Reset page clicked!');
+      const stepsNow = computeDynamicSteps();
+      const current = stepsNow[state.stepIndex];
+      
+      switch(current.key){
+        case 'profile':
+          // Reset milestones to default
+          state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
+          console.log('Reset profile page');
+          break;
+        case 'rw_exempt':
+          // Reset reading selections and proof
+          state.answers.reading = {selections:{}, proof:{sent:'', date:'', method:'', notes:''}};
+          state.ui.rw = {enroll:false, military:false, cpp:false, tests:false};
+          console.log('Reset reading/writing exemptions page');
+          break;
+        case 'm_exempt':
+          // Reset math selections and proof
+          state.answers.math = {selections:{}, proof:{sent:'', date:'', method:'', notes:''}};
+          state.ui.m = {enroll:false, military:false, cpp:false, tests:false};
+          console.log('Reset math exemptions page');
+          break;
+        case 'intro':
+        case 'summary':
+          console.log('No reset needed for this page');
+          break;
+      }
+      
+      render();
+    }
+
+    function startOver(){
+      console.log('Start over clicked!');
+      
+      // Reset everything and go to beginning
+      state.stepIndex = 0;
+      state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
+      state.answers = {
+        reading:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
+        math:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
+      };
+      state.ui = { rw:{enroll:false, military:false, cpp:false, tests:false}, m:{enroll:false, military:false, cpp:false, tests:false} };
+      
+      console.log('Started over - back to introduction');
+      render();
     }
 
     // Nav
@@ -551,20 +720,29 @@
       }
       if (state.stepIndex < stepsNow.length-1){ state.stepIndex++; render(); }
     });
-    document.getElementById('resetBtn').addEventListener('click', ()=>{
-      if (!confirm('Reset all selections?')) return;
-      state.stepIndex = 0;
-      state.milestones = { TSIR:'N', TSIW:'N', TISM:'N' };
-      state.answers = {
-        reading:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
-        math:{selections:{}, proof:{sent:'', date:'', method:'', notes:''}},
-      };
-      state.ui = { rw:{enroll:false, military:false, cpp:false, tests:false}, m:{enroll:false, military:false, cpp:false, tests:false} };
-      render();
-    });
 
     // Kickoff
     render();
+    
+    // Setup button event listeners after initial render
+    setTimeout(() => {
+      const resetPageBtn = document.getElementById('resetPageBtn');
+      const startOverBtn = document.getElementById('startOverBtn');
+      
+      if (resetPageBtn) {
+        resetPageBtn.addEventListener('click', resetPage);
+        console.log('Reset Page button event listener attached');
+      } else {
+        console.error('Reset Page button not found!');
+      }
+      
+      if (startOverBtn) {
+        startOverBtn.addEventListener('click', startOver);
+        console.log('Start Over button event listener attached');
+      } else {
+        console.error('Start Over button not found!');
+      }
+    }, 100);
   </script>
 </body>
 </html>
