@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TSI Guidance (No-Login) — Lone Star College</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-banner, .footer-banner {
+      background: #003366;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+    }
+    .footer-banner { font-size: 14px; margin-top: auto; }
+
+    .main-container { max-width: 1000px; margin: 20px auto; padding: 0 20px; flex: 1; }
+    .page-title { font-size: 24px; font-weight: bold; color: #003366; margin-bottom: 20px; }
+
+    .app-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.08);
+    }
+
+    .progress-steps {
+      display: flex; justify-content: space-between; margin-bottom: 30px;
+      padding: 20px 0; border-bottom: 1px solid #eee;
+    }
+    .step { flex: 1; text-align: center; position: relative; color: #999; font-size: 14px; }
+    .step-number {
+      width: 30px; height: 30px; border-radius: 50%; background: #eee; color: #999;
+      display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px; font-weight: bold;
+    }
+    .step.active { color: #003366; font-weight: bold; }
+    .step.active .step-number { background: #003366; color: #fff; }
+    .step.completed { color: #28a745; }
+    .step.completed .step-number { background: #28a745; color: #fff; }
+
+    .form-section { margin-bottom: 24px; }
+    .form-section h3 { color: #003366; font-size: 18px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #e6f3ff; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; }
+    input[type="text"], input[type="number"], select {
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+    }
+
+    .hint { font-size: 12px; color: #666; margin-top: 6px; }
+    .radio-row, .check-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .radio-item, .check-item { display: flex; align-items: center; gap: 8px; }
+
+    .exemption-category { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 14px; }
+    .category-header {
+      background: #f8f9fa; padding: 14px; border-bottom: 1px solid #ddd; cursor: pointer; font-weight: bold;
+      color: #003366; display: flex; justify-content: space-between; align-items: center;
+    }
+    .category-header:hover { background: #e9ecef; }
+    .category-content { padding: 16px; display: none; }
+    .category-content.open { display: block; }
+    .expand-icon { transition: transform .25s; }
+    .category-header.open .expand-icon { transform: rotate(180deg); }
+
+    .status-pill { display: inline-block; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: bold; }
+    .status-exempt { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status-needed { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+
+    .btn-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+    .btn { padding: 12px 22px; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; transition: background-color .2s; }
+    .btn-primary { background: #003366; color: #fff; }
+    .btn-primary:hover { background: #002244; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn-secondary:hover { background: #545b62; }
+    .btn-outline { background: #fff; color: #003366; border: 1px solid #003366; }
+    .btn-outline:hover { background: #003366; color: #fff; }
+    .btn-small { padding: 8px 12px; font-size: 12px; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .info-card {
+      background: #e6f3ff; padding: 16px; border-left: 4px solid #003366; border-radius: 4px; margin-bottom: 16px;
+    }
+    .danger-card { background: #fdeaea; border-left-color: #c82333; }
+    .warn-card { background: #fff7df; border-left-color: #ffb300; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .stack-sm { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+    .info-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    .info-table th, .info-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    .info-table th { background: #f8f9fa; color: #003366; }
+
+    #resetButtonsContainer { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+
+    @media (max-width: 768px) {
+      .progress-steps { flex-direction: column; gap: 10px; }
+      .two-col { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; gap: 10px; }
+      .main-container { padding: 0 10px; }
+    }
+
+    /* Print-friendly summary */
+    @media print {
+      .header-banner, .footer-banner, .btn-group, #resetButtonsContainer, .progress-steps { display: none !important; }
+      .app-card { box-shadow: none; border: none; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-banner">LSC Header Goes Here</div>
+
+  <div class="main-container">
+    <h1 class="page-title">TSI Guidance (No-Login)</h1>
+
+    <div class="app-card">
+
+      <div id="resetButtonsContainer" style="display:none;">
+        <button class="btn btn-outline btn-small" id="resetPageBtn">Reset Page</button>
+        <button class="btn btn-outline btn-small" id="startOverBtn">Start Over</button>
+      </div>
+
+      <div class="progress-steps" id="progressSteps"></div>
+
+      <div id="pageContent"></div>
+
+      <div class="btn-group" id="navigationButtons" style="display:none;">
+        <div>
+          <button class="btn btn-outline btn-small" id="printBtn">Print / Save PDF</button>
+        </div>
+        <div>
+          <button class="btn btn-secondary" id="backBtn">Previous</button>
+          <button class="btn btn-primary" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-banner">LSC Footer Goes Here</div>
+
+  <script>
+    /**** CONFIGURABLE CUTS (easy to edit) ****/
+    const CUTS = {
+      SAT: { ERW: 480, MATH: 530 },
+      ACT: {
+        NEW: { ERsum: 40, MATH: 22 },         // on/after 2023-02-15
+        OLD: { ENG: 19, COMP: 23 }            // before 2023-02-15
+      },
+      GED: { RLA: 165, MATH: 165 },
+      HISET: { READ: 15, WRITE: 15, ESSAY: 4, MATH: 15 },
+      STAAR: { ENG3: 4000, ALG2: 4000 }       // shown as simple thresholds for prototype
+    };
+
+    /**** PAGES (FLOW) ****/
+    const STEPS = [
+      { key: 'welcome', label: 'Welcome' },
+      { key: 'applied', label: 'Apply' },
+      { key: 'login', label: 'Log in & Checklist' },
+      { key: 'precheck', label: 'Pre-Check' },
+      { key: 'scores', label: 'Enter Scores' },
+      { key: 'results', label: 'Results' }
+    ];
+
+    /**** STATE ****/
+    const state = {
+      stepIndex: 0,
+      answers: {
+        hasApplied: null,       // true | false
+        hasLoggedIn: null,      // true | false
+        english: {
+          degree: false,
+          transferCredit: false,
+          priorReady: false,
+          activeDuty: false,
+          veteran: false,
+          cpp: false,
+          esol: false,
+          level1: false,
+          // score flags
+          hasScores: false,
+          sat_erw: null,
+          act_new_er_sum: null,
+          act_old_eng: null,
+          act_old_comp: null,
+          ged_rla: null,
+          hiset_read: null, hiset_write: null, hiset_essay: null,
+          staar_eng3: null
+        },
+        math: {
+          degree: false,
+          transferCredit: false,
+          priorReady: false,
+          activeDuty: false,
+          veteran: false,
+          level1: false,
+          esol: false, // ignored for math, but allow capture for consistency
+          hasScores: false,
+          sat_math: null,
+          act_new_math: null,
+          act_old_math: null,
+          act_old_comp: null,
+          ged_math: null,
+          hiset_math: null,
+          staar_alg2: null
+        }
+      },
+      ui: {
+        open: {}  // accordion open states
+      }
+    };
+
+    /**** RENDERING ****/
+    function computeVisibleSteps() {
+      // Always show full wizard; use guards to skip “Scores” if not chosen
+      return [...STEPS];
+    }
+
+    function renderProgress() {
+      const steps = computeVisibleSteps();
+      const el = document.getElementById('progressSteps');
+      el.innerHTML = steps.map((s, i) => `
+        <div class="step ${i === state.stepIndex ? 'active' : i < state.stepIndex ? 'completed' : ''}">
+          <div class="step-number">${i + 1}</div>
+          <div>${s.label}</div>
+        </div>
+      `).join('');
+    }
+
+    function render() {
+      const steps = computeVisibleSteps();
+      const current = steps[state.stepIndex];
+
+      document.getElementById('progressSteps').style.display = 'flex';
+      document.getElementById('navigationButtons').style.display = 'flex';
+
+      // Show reset tools only on interactive steps
+      const showReset = ['applied','login','precheck','scores'].includes(current.key);
+      document.getElementById('resetButtonsContainer').style.display = showReset ? 'flex' : 'none';
+
+      renderProgress();
+
+      const container = document.getElementById('pageContent');
+      switch (current.key) {
+        case 'welcome': renderWelcome(container); break;
+        case 'applied': renderApplied(container); break;
+        case 'login': renderLogin(container); break;
+        case 'precheck': renderPrecheck(container); break;
+        case 'scores': renderScores(container); break;
+        case 'results': renderResults(container); break;
+      }
+
+      // Nav buttons
+      const backBtn = document.getElementById('backBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      backBtn.style.display = state.stepIndex === 0 ? 'none' : 'inline-block';
+
+      // Determine if next should be hidden at end or gated
+      if (current.key === 'results') {
+        nextBtn.style.display = 'none';
+      } else if (current.key === 'scores') {
+        // Next always available from Scores
+        nextBtn.textContent = 'See Results';
+        nextBtn.style.display = 'inline-block';
+      } else if (current.key === 'precheck') {
+        nextBtn.textContent = (state.answers.english.hasScores || state.answers.math.hasScores) ? 'Enter Scores' : 'See Results';
+        nextBtn.style.display = 'inline-block';
+      } else {
+        nextBtn.textContent = 'Next';
+        nextBtn.style.display = 'inline-block';
+      }
+    }
+
+    /**** PAGE: Welcome ****/
+    function renderWelcome(container) {
+      document.getElementById('progressSteps').style.display = 'none';
+      document.getElementById('navigationButtons').style.display = 'none';
+      document.getElementById('resetButtonsContainer').style.display = 'none';
+
+      container.innerHTML = `
+        <div class="form-section info-card">
+          <h3 style="margin-bottom:8px;">What this tool does</h3>
+          <p>This quick guide (no login required) will help you figure out your <strong>likely</strong> TSI status for <strong>English</strong> and <strong>Math</strong> and show your exact next steps.</p>
+          <p class="hint" style="margin-top:8px;">Final placement decisions are made by Lone Star College after reviewing official records.</p>
+        </div>
+
+        <div class="form-section">
+          <div class="two-col">
+            <div class="info-card">
+              <strong>It takes ~2–3 minutes.</strong>
+              <ul style="margin:10px 0 0 18px;">
+                <li>We’ll check if you’ve applied and logged in</li>
+                <li>We’ll ask a few yes/no questions</li>
+                <li>Optionally enter your test scores</li>
+              </ul>
+            </div>
+            <div class="info-card">
+              <strong>Outcomes you’ll get:</strong>
+              <ul style="margin:10px 0 0 18px;">
+                <li><em>Apply first</em>, if needed</li>
+                <li><em>Log in & check your checklist</em>, if not done</li>
+                <li><em>Likely exempt</em> or <em>likely needs TSIA2</em> by area</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+          <button class="btn btn-primary" id="startWizard">Start</button>
+        </div>
+      `;
+
+      document.getElementById('startWizard').addEventListener('click', () => {
+        state.stepIndex = 1;
+        render();
+      });
+    }
+
+    /**** PAGE: Applied? ****/
+    function renderApplied(container) {
+      container.innerHTML = `
+        <div class="form-section">
+          <h3>Have you applied to Lone Star College?</h3>
+          <div class="radio-row" style="margin-top:8px;">
+            <label class="radio-item"><input type="radio" name="applied" value="yes" ${state.answers.hasApplied===true?'checked':''}/> Yes</label>
+            <label class="radio-item"><input type="radio" name="applied" value="no" ${state.answers.hasApplied===false?'checked':''}/> No</label>
+          </div>
+          <p class="hint" style="margin-top:8px;">If you haven’t applied yet, you’ll need to do that first.</p>
+        </div>
+
+        ${
+          state.answers.hasApplied === false ? `
+          <div class="form-section warn-card" style="border-left:4px solid #ffb300;">
+            <h4 style="margin-bottom:6px;">Apply first</h4>
+            <p>Submit your application through GoApplyTexas, then come back to continue.</p>
+            <div style="margin-top:10px;">
+              <a class="btn btn-outline" href="#" target="_blank" rel="noopener">Apply at GoApplyTexas</a>
+              <a class="btn btn-outline" href="#" target="_blank" rel="noopener">Admissions Checklist</a>
+            </div>
+          </div>
+        ` : ''
+        }
+      `;
+
+      document.querySelectorAll('input[name="applied"]').forEach(r => {
+        r.addEventListener('change', e => {
+          state.answers.hasApplied = e.target.value === 'yes';
+          render();
+        });
+      });
+
+      hookNavGuards({
+        canNext: () => state.answers.hasApplied !== null,
+        nextTo: () => state.stepIndex = (state.answers.hasApplied ? 2 : 1) // stay here if no
+      });
+    }
+
+    /**** PAGE: Login & Checklist ****/
+    function renderLogin(container) {
+      container.innerHTML = `
+        <div class="form-section">
+          <h3>Have you logged in to myLoneStar and checked your checklist?</h3>
+          <div class="radio-row" style="margin-top:8px;">
+            <label class="radio-item"><input type="radio" name="logged" value="yes" ${state.answers.hasLoggedIn===true?'checked':''}/> Yes</label>
+            <label class="radio-item"><input type="radio" name="logged" value="no" ${state.answers.hasLoggedIn===false?'checked':''}/> No</label>
+          </div>
+        </div>
+
+        ${
+          state.answers.hasLoggedIn === false ? `
+          <div class="form-section info-card">
+            <h4 style="margin-bottom:6px;">How to log in & find your checklist</h4>
+            <ol style="margin-left:18px;">
+              <li>Find your LSC ID & NetID (lookup)</li>
+              <li>Set or reset your password</li>
+              <li>Log in to myLoneStar → <em>Student Homepage</em> → <strong>Tasks</strong> → <strong>Checklist</strong></li>
+            </ol>
+            <div style="margin-top:10px;">
+              <a class="btn btn-outline btn-small" href="#" target="_blank" rel="noopener">NetID Lookup</a>
+              <a class="btn btn-outline btn-small" href="#" target="_blank" rel="noopener">Password Help</a>
+              <a class="btn btn-outline btn-small" href="#" target="_blank" rel="noopener">Open myLoneStar</a>
+            </div>
+            <p class="hint" style="margin-top:8px;">You can continue this guide now, but be sure to complete your checklist items.</p>
+          </div>
+        ` : ''
+        }
+      `;
+
+      document.querySelectorAll('input[name="logged"]').forEach(r => {
+        r.addEventListener('change', e => {
+          state.answers.hasLoggedIn = e.target.value === 'yes';
+          render();
+        });
+      });
+
+      hookNavGuards({
+        canNext: () => state.answers.hasLoggedIn !== null,
+        nextTo: () => state.stepIndex = 3
+      });
+    }
+
+    /**** PAGE: Pre-Check (quick attestation) ****/
+    function renderPrecheck(container) {
+      container.innerHTML = `
+        <div class="form-section">
+          <h3>Quick Pre-Check</h3>
+          <p>Select what applies to you. We’ll evaluate <strong>English</strong> and <strong>Math</strong> separately.</p>
+        </div>
+
+        ${renderAreaCard('English', 'english', {
+          degree: 'I have an associate’s or higher degree',
+          transferCredit: 'I completed a college-level English composition/writing course (for credit)',
+          priorReady: 'A prior college already determined I was college-ready in English',
+          activeDuty: 'I am active duty (or served ≥ 3 years before enrolling)',
+          veteran: 'I am a veteran (honorable discharge/retired/released on/after Aug 1, 1990)',
+          cpp: 'I completed an approved high-school College Preparatory English course (within 24 months)',
+          esol: 'I am in ESOL (English for Speakers of Other Languages)',
+          level1: 'I am pursuing a Level 1 certificate',
+          hasScores: 'I want to enter test scores for English'
+        })}
+
+        ${renderAreaCard('Math', 'math', {
+          degree: 'I have an associate’s or higher degree',
+          transferCredit: 'I completed a college-level Math course (for credit)',
+          priorReady: 'A prior college already determined I was college-ready in Math',
+          activeDuty: 'I am active duty (or served ≥ 3 years before enrolling)',
+          veteran: 'I am a veteran (honorable discharge/retired/released on/after Aug 1, 1990)',
+          level1: 'I am pursuing a Level 1 certificate',
+          esol: 'I am in ESOL (usually applies to English placement)',
+          hasScores: 'I want to enter test scores for Math'
+        })}
+
+        <div class="form-section hint">
+          Tip: If you’re unsure, choose “I want to enter test scores” and add what you know. You can still get a result without scores.
+        </div>
+      `;
+
+      // Bind checkboxes
+      bindPrecheckToggles('english');
+      bindPrecheckToggles('math');
+
+      hookNavGuards({
+        canNext: () => true,
+        nextTo: () => {
+          const goScores = state.answers.english.hasScores || state.answers.math.hasScores;
+          state.stepIndex = goScores ? 4 : 5;
+        }
+      });
+    }
+
+    function renderAreaCard(title, key, labels) {
+      const a = state.answers[key];
+      return `
+        <div class="form-section exemption-category">
+          <div class="category-header ${isOpen(`${key}-card`) ? 'open':''}" onclick="toggleOpen('${key}-card')">
+            <span>${title}</span><span class="expand-icon">▼</span>
+          </div>
+          <div class="category-content ${isOpen(`${key}-card`) ? 'open':''}" id="${key}-card">
+            <div class="check-row">
+              ${Object.entries(labels).map(([k,l]) => `
+                <label class="check-item">
+                  <input type="checkbox" data-area="${key}" data-key="${k}" ${a[k] ? 'checked':''}/> ${l}
+                </label>
+              `).join('')}
+            </div>
+            <div style="margin-top:12px;">
+              ${previewDecisionPill(key)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function previewDecisionPill(areaKey) {
+      const d = computeAreaDecision(areaKey);
+      const cls = d.label === 'Likely Exempt' ? 'status-exempt'
+               : d.label.startsWith('Waiver') ? 'status-warning'
+               : 'status-needed';
+      return `<span class="status-pill ${cls}">${d.label}</span> <span class="hint">${d.reason}</span>`;
+    }
+
+    function bindPrecheckToggles(areaKey) {
+      document.querySelectorAll(`[data-area="${areaKey}"]`).forEach(cb => {
+        cb.addEventListener('change', e => {
+          const k = e.target.getAttribute('data-key');
+          state.answers[areaKey][k] = e.target.checked;
+          render(); // refresh pills
+        });
+      });
+    }
+
+    /**** PAGE: Scores (optional) ****/
+    function renderScores(container) {
+      const wantE = state.answers.english.hasScores;
+      const wantM = state.answers.math.hasScores;
+
+      container.innerHTML = `
+        <div class="form-section">
+          <h3>Enter Scores (Optional)</h3>
+          <p>Provide your best scores. Leave any unknown fields blank.</p>
+        </div>
+
+        ${wantE ? scoresBlockEnglish() : ''}
+        ${wantM ? scoresBlockMath() : ''}
+
+        ${(!wantE && !wantM) ? `
+          <div class="form-section warn-card" style="border-left:4px solid #ffb300;">
+            <strong>No score entry selected.</strong> You can continue to results without entering scores.
+          </div>` : ''
+        }
+      `;
+
+      // bind inputs
+      bindNumericInputs();
+      hookNavGuards({
+        canNext: () => true,
+        nextTo: () => state.stepIndex = 5
+      });
+    }
+
+    function scoresBlockEnglish() {
+      const e = state.answers.english;
+      return `
+        <div class="form-section exemption-category">
+          <div class="category-header ${isOpen('scores-eng')?'open':''}" onclick="toggleOpen('scores-eng')">
+            <span>English Scores</span><span class="expand-icon">▼</span>
+          </div>
+          <div class="category-content ${isOpen('scores-eng')?'open':''}" id="scores-eng">
+            <div class="two-col">
+              <div class="form-group">
+                <label>SAT ERW</label>
+                <input type="number" min="0" step="1" data-bind="english.sat_erw" value="${valOrEmpty(e.sat_erw)}" placeholder="e.g., ${CUTS.SAT.ERW}">
+                <div class="hint">Threshold ≥ ${CUTS.SAT.ERW}</div>
+              </div>
+              <div class="form-group">
+                <label>ACT (new) English+Reading sum</label>
+                <input type="number" min="0" step="1" data-bind="english.act_new_er_sum" value="${valOrEmpty(e.act_new_er_sum)}" placeholder="e.g., ${CUTS.ACT.NEW.ERsum}">
+                <div class="hint">On/after 02/15/2023, sum ≥ ${CUTS.ACT.NEW.ERsum}</div>
+              </div>
+              <div class="form-group">
+                <label>ACT (old) English</label>
+                <input type="number" min="0" step="1" data-bind="english.act_old_eng" value="${valOrEmpty(e.act_old_eng)}" placeholder="e.g., ${CUTS.ACT.OLD.ENG}">
+                <div class="hint">Before 02/15/2023, English ≥ ${CUTS.ACT.OLD.ENG} and Composite ≥ ${CUTS.ACT.OLD.COMP}</div>
+              </div>
+              <div class="form-group">
+                <label>ACT (old) Composite</label>
+                <input type="number" min="0" step="1" data-bind="english.act_old_comp" value="${valOrEmpty(e.act_old_comp)}" placeholder="e.g., ${CUTS.ACT.OLD.COMP}">
+              </div>
+              <div class="form-group">
+                <label>GED Reasoning Through Language Arts</label>
+                <input type="number" min="0" step="1" data-bind="english.ged_rla" value="${valOrEmpty(e.ged_rla)}" placeholder="e.g., ${CUTS.GED.RLA}">
+                <div class="hint">Threshold ≥ ${CUTS.GED.RLA}</div>
+              </div>
+              <div class="form-group">
+                <label>HiSET Reading</label>
+                <input type="number" min="0" step="1" data-bind="english.hiset_read" value="${valOrEmpty(e.hiset_read)}" placeholder="e.g., ${CUTS.HISET.READ}">
+                <div class="hint">Reading ≥ ${CUTS.HISET.READ}, Writing ≥ ${CUTS.HISET.WRITE}, Essay ≥ ${CUTS.HISET.ESSAY}</div>
+              </div>
+              <div class="form-group">
+                <label>HiSET Writing</label>
+                <input type="number" min="0" step="1" data-bind="english.hiset_write" value="${valOrEmpty(e.hiset_write)}" placeholder="e.g., ${CUTS.HISET.WRITE}">
+              </div>
+              <div class="form-group">
+                <label>HiSET Essay</label>
+                <input type="number" min="0" step="1" data-bind="english.hiset_essay" value="${valOrEmpty(e.hiset_essay)}" placeholder="e.g., ${CUTS.HISET.ESSAY}">
+              </div>
+              <div class="form-group">
+                <label>STAAR English III</label>
+                <input type="number" min="0" step="1" data-bind="english.staar_eng3" value="${valOrEmpty(e.staar_eng3)}" placeholder="e.g., ${CUTS.STAAR.ENG3}">
+                <div class="hint">Prototype threshold ≥ ${CUTS.STAAR.ENG3}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;">${previewDecisionPill('english')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function scoresBlockMath() {
+      const m = state.answers.math;
+      return `
+        <div class="form-section exemption-category">
+          <div class="category-header ${isOpen('scores-math')?'open':''}" onclick="toggleOpen('scores-math')">
+            <span>Math Scores</span><span class="expand-icon">▼</span>
+          </div>
+          <div class="category-content ${isOpen('scores-math')?'open':''}" id="scores-math">
+            <div class="two-col">
+              <div class="form-group">
+                <label>SAT Math</label>
+                <input type="number" min="0" step="1" data-bind="math.sat_math" value="${valOrEmpty(m.sat_math)}" placeholder="e.g., ${CUTS.SAT.MATH}">
+                <div class="hint">Threshold ≥ ${CUTS.SAT.MATH}</div>
+              </div>
+              <div class="form-group">
+                <label>ACT (new) Math</label>
+                <input type="number" min="0" step="1" data-bind="math.act_new_math" value="${valOrEmpty(m.act_new_math)}" placeholder="e.g., ${CUTS.ACT.NEW.MATH}">
+                <div class="hint">On/after 02/15/2023, Math ≥ ${CUTS.ACT.NEW.MATH}</div>
+              </div>
+              <div class="form-group">
+                <label>ACT (old) Math</label>
+                <input type="number" min="0" step="1" data-bind="math.act_old_math" value="${valOrEmpty(m.act_old_math)}" placeholder="e.g., ${CUTS.ACT.OLD.ENG} (Math prior); Comp ${CUTS.ACT.OLD.COMP}">
+                <div class="hint">Before 02/15/2023, Math ≥ 19 and Composite ≥ ${CUTS.ACT.OLD.COMP} (prototype)</div>
+              </div>
+              <div class="form-group">
+                <label>ACT (old) Composite</label>
+                <input type="number" min="0" step="1" data-bind="math.act_old_comp" value="${valOrEmpty(m.act_old_comp)}" placeholder="e.g., ${CUTS.ACT.OLD.COMP}">
+              </div>
+              <div class="form-group">
+                <label>GED Math</label>
+                <input type="number" min="0" step="1" data-bind="math.ged_math" value="${valOrEmpty(m.ged_math)}" placeholder="e.g., ${CUTS.GED.MATH}">
+                <div class="hint">Threshold ≥ ${CUTS.GED.MATH}</div>
+              </div>
+              <div class="form-group">
+                <label>HiSET Math</label>
+                <input type="number" min="0" step="1" data-bind="math.hiset_math" value="${valOrEmpty(m.hiset_math)}" placeholder="e.g., ${CUTS.HISET.MATH}">
+                <div class="hint">Threshold ≥ ${CUTS.HISET.MATH}</div>
+              </div>
+              <div class="form-group">
+                <label>STAAR Algebra II</label>
+                <input type="number" min="0" step="1" data-bind="math.staar_alg2" value="${valOrEmpty(m.staar_alg2)}" placeholder="e.g., ${CUTS.STAAR.ALG2}">
+                <div class="hint">Prototype threshold ≥ ${CUTS.STAAR.ALG2}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;">${previewDecisionPill('math')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function bindNumericInputs() {
+      document.querySelectorAll('[data-bind]').forEach(inp => {
+        inp.addEventListener('input', e => {
+          const path = e.target.getAttribute('data-bind').split('.');
+          const area = path[0], key = path[1];
+          const val = e.target.value === '' ? null : Number(e.target.value);
+          state.answers[area][key] = Number.isFinite(val) ? val : null;
+        });
+      });
+    }
+
+    /**** PAGE: Results ****/
+    function renderResults(container) {
+      const eng = computeAreaDecision('english');
+      const math = computeAreaDecision('math');
+
+      container.innerHTML = `
+        <div class="form-section">
+          <h3>Your Likely Status</h3>
+          <div class="two-col">
+            ${resultCard('English', eng)}
+            ${resultCard('Math', math)}
+          </div>
+        </div>
+
+        <div class="form-section info-card">
+          <strong>Next Steps</strong>
+          <div class="two-col" style="margin-top:8px;">
+            <div>
+              ${nextStepsBlock(eng, 'English')}
+            </div>
+            <div>
+              ${nextStepsBlock(math, 'Math')}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section hint">
+          This tool provides a <em>likely</em> status based on your answers. Final placement is determined by Lone Star College after review of official documentation.
+        </div>
+      `;
+    }
+
+    function resultCard(title, d) {
+      const cls = d.label === 'Likely Exempt' ? 'status-exempt'
+               : d.label.startsWith('Waiver') ? 'status-warning'
+               : 'status-needed';
+      return `
+        <div class="exemption-category">
+          <div class="category-header open">
+            <span>${title}</span><span class="status-pill ${cls}">${d.label}</span>
+          </div>
+          <div class="category-content open">
+            <p style="margin-bottom:10px;">${d.reason}</p>
+            ${d.details ? `<ul class="hint" style="margin-left:18px;">${d.details.map(x=>`<li>${x}</li>`).join('')}</ul>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function nextStepsBlock(decision, areaTitle) {
+      if (decision.label === 'Likely Exempt') {
+        return `
+          <p><strong>${areaTitle}:</strong> Upload/send your official documentation to confirm the exemption.</p>
+          <ul style="margin-left:18px;">
+            <li>Official transcripts or test scores from the agency/institution</li>
+            <li>Check your myLoneStar <em>Checklist</em> for confirmation</li>
+            <li>Contact Advising if you have questions</li>
+          </ul>
+        `;
+      }
+      if (decision.label.startsWith('Waiver')) {
+        return `
+          <p><strong>${areaTitle}:</strong> Meet with Advising to confirm the waiver and plan courses.</p>
+          <ul style="margin-left:18px;">
+            <li>ESOL waiver: up to 15 credit hours without TSI (talk to Advising)</li>
+            <li>Level 1 certificate: testing may not be required for some programs</li>
+            <li>Your advisor will confirm applicability</li>
+          </ul>
+        `;
+      }
+      return `
+        <p><strong>${areaTitle}:</strong> You’ll likely need the TSIA2 assessment.</p>
+        <ul style="margin-left:18px;">
+          <li>Schedule TSIA2 at a campus testing center</li>
+          <li>Review prep resources before testing</li>
+          <li>Ask Advising about alternatives if you believe you qualify for an exemption</li>
+        </ul>
+      `;
+    }
+
+    /**** DECISION ENGINE ****/
+    function computeAreaDecision(areaKey) {
+      const a = state.answers[areaKey];
+
+      // 1) Degree (exempt both areas)
+      if (a.degree) return { label: 'Likely Exempt', reason: 'You reported an associate’s or higher degree.' };
+
+      // 2) College credit in the area
+      if (a.transferCredit) {
+        return { label: 'Likely Exempt', reason: 'You reported completed college-level coursework in this subject.' };
+      }
+
+      // 3) Prior college readiness
+      if (a.priorReady) return { label: 'Likely Exempt', reason: 'A prior college determined you’re college-ready in this subject.' };
+
+      // 4) Military (active duty or qualifying veteran)
+      if (a.activeDuty || a.veteran) return { label: 'Likely Exempt', reason: 'You reported qualifying military status.' };
+
+      // 5) Test scores (if provided / chosen)
+      if (a.hasScores) {
+        if (areaKey === 'english') {
+          if (numAtLeast(a.sat_erw, CUTS.SAT.ERW))
+            return { label: 'Likely Exempt', reason: `SAT ERW ≥ ${CUTS.SAT.ERW}` };
+          if (numAtLeast(a.act_new_er_sum, CUTS.ACT.NEW.ERsum))
+            return { label: 'Likely Exempt', reason: `ACT new (E+R) ≥ ${CUTS.ACT.NEW.ERsum}` };
+          if (numAtLeast(a.act_old_eng, CUTS.ACT.OLD.ENG) && numAtLeast(a.act_old_comp, CUTS.ACT.OLD.COMP))
+            return { label: 'Likely Exempt', reason: `ACT old English ≥ ${CUTS.ACT.OLD.ENG} and Composite ≥ ${CUTS.ACT.OLD.COMP}` };
+          if (numAtLeast(a.ged_rla, CUTS.GED.RLA))
+            return { label: 'Likely Exempt', reason: `GED RLA ≥ ${CUTS.GED.RLA}` };
+          if (numAtLeast(a.hiset_read, CUTS.HISET.READ) && numAtLeast(a.hiset_write, CUTS.HISET.WRITE) && numAtLeast(a.hiset_essay, CUTS.HISET.ESSAY))
+            return { label: 'Likely Exempt', reason: `HiSET Reading/Writing/Essay meet thresholds` };
+          if (numAtLeast(a.staar_eng3, CUTS.STAAR.ENG3))
+            return { label: 'Likely Exempt', reason: `STAAR English III ≥ ${CUTS.STAAR.ENG3}` };
+        } else {
+          if (numAtLeast(a.sat_math, CUTS.SAT.MATH))
+            return { label: 'Likely Exempt', reason: `SAT Math ≥ ${CUTS.SAT.MATH}` };
+          if (numAtLeast(a.act_new_math, CUTS.ACT.NEW.MATH))
+            return { label: 'Likely Exempt', reason: `ACT new Math ≥ ${CUTS.ACT.NEW.MATH}` };
+          if (numAtLeast(a.act_old_math, 19) && numAtLeast(a.act_old_comp, CUTS.ACT.OLD.COMP))
+            return { label: 'Likely Exempt', reason: `ACT old Math ≥ 19 and Composite ≥ ${CUTS.ACT.OLD.COMP}` };
+          if (numAtLeast(a.ged_math, CUTS.GED.MATH))
+            return { label: 'Likely Exempt', reason: `GED Math ≥ ${CUTS.GED.MATH}` };
+          if (numAtLeast(a.hiset_math, CUTS.HISET.MATH))
+            return { label: 'Likely Exempt', reason: `HiSET Math ≥ ${CUTS.HISET.MATH}` };
+          if (numAtLeast(a.staar_alg2, CUTS.STAAR.ALG2))
+            return { label: 'Likely Exempt', reason: `STAAR Algebra II ≥ ${CUTS.STAAR.ALG2}` };
+        }
+      }
+
+      // 6) Waiver paths
+      if (a.esol) return { label: 'Waiver may apply (ESOL)', reason: 'ESOL students may enroll up to 15 credit hours without TSI.', details: ['Confirm with Advising.'] };
+      if (a.level1) return { label: 'Waiver may apply (Level 1)', reason: 'Level 1 certificate programs may not require TSI.', details: ['Confirm program details with Advising.'] };
+
+      // 7) Otherwise: needs TSIA2
+      return { label: 'Likely Needs TSIA2', reason: 'No qualifying exemption or waiver selected.' };
+    }
+
+    /**** HELPERS ****/
+    function numAtLeast(v, cut) { return typeof v === 'number' && !Number.isNaN(v) && v >= cut; }
+    function valOrEmpty(v) { return (v ?? '') === null ? '' : (v ?? ''); }
+
+    function toggleOpen(id) {
+      state.ui.open[id] = !state.ui.open[id];
+      render();
+    }
+    function isOpen(id) { return !!state.ui.open[id]; }
+    window.toggleOpen = toggleOpen; // expose for inline onclick
+
+    function hookNavGuards({ canNext, nextTo }) {
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.onclick = () => {
+        if (!canNext || canNext()) { nextTo(); render(); }
+      };
+      const backBtn = document.getElementById('backBtn');
+      backBtn.onclick = () => {
+        if (state.stepIndex > 0) { state.stepIndex--; render(); }
+      };
+    }
+
+    // Reset & Start Over
+    document.getElementById('resetPageBtn').addEventListener('click', () => {
+      const stepKey = computeVisibleSteps()[state.stepIndex].key;
+      if (stepKey === 'applied') {
+        state.answers.hasApplied = null;
+      } else if (stepKey === 'login') {
+        state.answers.hasLoggedIn = null;
+      } else if (stepKey === 'precheck') {
+        state.answers.english = { ...blankArea(), hasScores: state.answers.english.hasScores };
+        state.answers.math = { ...blankArea(), hasScores: state.answers.math.hasScores };
+      } else if (stepKey === 'scores') {
+        // Clear numeric fields only
+        Object.keys(state.answers.english).forEach(k => { if (typeof state.answers.english[k] === 'number' || state.answers.english[k] === null) state.answers.english[k] = null; });
+        Object.keys(state.answers.math).forEach(k => { if (typeof state.answers.math[k] === 'number' || state.answers.math[k] === null) state.answers.math[k] = null; });
+      }
+      render();
+    });
+
+    document.getElementById('startOverBtn').addEventListener('click', () => {
+      state.stepIndex = 0;
+      state.answers = {
+        hasApplied: null,
+        hasLoggedIn: null,
+        english: blankArea(),
+        math: blankArea()
+      };
+      state.ui.open = {};
+      render();
+    });
+
+    function blankArea() {
+      return {
+        degree:false, transferCredit:false, priorReady:false, activeDuty:false, veteran:false,
+        cpp:false, esol:false, level1:false, hasScores:false,
+        // scores
+        sat_erw:null, act_new_er_sum:null, act_old_eng:null, act_old_comp:null, ged_rla:null,
+        hiset_read:null, hiset_write:null, hiset_essay:null, staar_eng3:null,
+        sat_math:null, act_new_math:null, act_old_math:null, ged_math:null, hiset_math:null, staar_alg2:null, act_old_comp:null
+      };
+    }
+
+    // Print
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
